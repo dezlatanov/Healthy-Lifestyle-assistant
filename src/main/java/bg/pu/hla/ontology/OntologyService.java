@@ -53,7 +53,7 @@ public class OntologyService {
                 baseSize, ontModel.size());
     }
 
-    public OntologyQueryResult recommendMealsForGoal(HealthGoal goal) {
+    public synchronized OntologyQueryResult recommendMealsForGoal(HealthGoal goal) {
         String goalUri = mapGoalToUri(goal);
         String sparql = buildMealQuery(goal, goalUri, true);
         List<OntologyRecommendation> meals = runLabelQuery(sparql, "meal", "Meal");
@@ -105,7 +105,7 @@ public class OntologyService {
                 """.formatted(NS, goalUri, foodConstraint);
     }
 
-    public OntologyQueryResult recommendExercisesForGoal(HealthGoal goal) {
+    public synchronized OntologyQueryResult recommendExercisesForGoal(HealthGoal goal) {
         String goalUri = mapGoalToUri(goal);
         String sparql = """
                 PREFIX hla: <%s>
@@ -145,7 +145,7 @@ public class OntologyService {
                 .build();
     }
 
-    public List<OntologyRecommendation> listHabits() {
+    public synchronized List<OntologyRecommendation> listHabits() {
         String sparql = """
                 PREFIX hla: <%s>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -178,7 +178,7 @@ public class OntologyService {
         return habits;
     }
 
-    public List<OntologyRecommendation> listHabitsForGoal(HealthGoal goal) {
+    public synchronized List<OntologyRecommendation> listHabitsForGoal(HealthGoal goal) {
         String sparql = """
                 PREFIX hla: <%s>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -215,7 +215,7 @@ public class OntologyService {
         return habits;
     }
 
-    public List<OntologyRecommendation> listWorkoutPlansForGoal(HealthGoal goal) {
+    public synchronized List<OntologyRecommendation> listWorkoutPlansForGoal(HealthGoal goal) {
         String sparql = """
                 PREFIX hla: <%s>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -281,7 +281,6 @@ public class OntologyService {
             person.addLiteral(bmiProp, Math.round(bmi * 10.0) / 10.0);
         }
 
-        infModel.rebind();
         log.info("Synced person in ontology: {} goal={} age={} weight={}",
                 personUri, user.getGoal(), user.getAge(), user.getWeightKg());
         return personUri;
@@ -329,7 +328,7 @@ public class OntologyService {
         infModel.rebind();
     }
 
-    public List<String> listClasses() {
+    public synchronized List<String> listClasses() {
         List<String> classes = new ArrayList<>();
         String sparql = """
                 PREFIX hla: <%s>
@@ -358,11 +357,11 @@ public class OntologyService {
         return classes;
     }
 
-    public long statementCount() {
+    public synchronized long statementCount() {
         return model.size();
     }
 
-    public long baseStatementCount() {
+    public synchronized long baseStatementCount() {
         if (model instanceof OntModel ontModel) {
             return ontModel.getBaseModel().size();
         }

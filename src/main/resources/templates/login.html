@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Вход — Vita</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+    <style>
+        :root { --bg:#030712; --glass:rgba(255,255,255,.05); --border:rgba(255,255,255,.1); --text:#fafafa; --muted:#94a3b8; --mint:#2dd4bf; --emerald:#34d399; }
+        body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; margin:0; display:flex; align-items:center; justify-content:center; }
+        .aurora { position:fixed; inset:0; pointer-events:none; background:radial-gradient(ellipse 60% 50% at 20% 20%, rgba(45,212,191,.15), transparent), radial-gradient(ellipse 50% 40% at 80% 80%, rgba(167,139,250,.12), transparent); }
+        .auth-card { position:relative; z-index:1; width:100%; max-width:420px; margin:1rem; background:var(--glass); backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:20px; padding:2rem; box-shadow:0 25px 50px rgba(0,0,0,.45); }
+        .brand { display:flex; align-items:center; gap:.75rem; margin-bottom:1.5rem; }
+        .brand-icon { width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg,var(--mint),var(--emerald)); display:flex; align-items:center; justify-content:center; font-size:1.3rem; color:#042f2e; }
+        .brand h1 { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; margin:0; background:linear-gradient(135deg,#fff,var(--mint)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .brand p { font-size:.8rem; color:var(--muted); margin:0; }
+        .form-control { background:rgba(0,0,0,.35); border:1px solid var(--border); color:var(--text); border-radius:12px; padding:.7rem 1rem; }
+        .form-control:focus { background:rgba(0,0,0,.45); border-color:var(--mint); color:var(--text); box-shadow:0 0 0 3px rgba(45,212,191,.15); }
+        .form-label { font-size:.78rem; color:var(--muted); }
+        .btn-glow { background:linear-gradient(135deg,var(--mint),var(--emerald)); border:none; color:#042f2e; font-weight:700; border-radius:12px; padding:.75rem; width:100%; }
+        .btn-glow:hover { filter:brightness(1.08); color:#042f2e; }
+        .alert-box { border-radius:10px; padding:.75rem 1rem; font-size:.85rem; margin-bottom:1rem; }
+        .alert-error { background:rgba(251,113,133,.12); border:1px solid rgba(251,113,133,.25); color:#fb7185; }
+        .alert-ok { background:rgba(45,212,191,.1); border:1px solid rgba(45,212,191,.25); color:var(--mint); }
+        .demo-hint { font-size:.75rem; color:var(--muted); background:rgba(0,0,0,.25); border:1px solid var(--border); border-radius:10px; padding:.75rem; margin-top:1rem; }
+        .demo-hint code { color:var(--mint); }
+        a { color:var(--mint); text-decoration:none; }
+        a:hover { color:var(--emerald); }
+    </style>
+</head>
+<body>
+<div class="aurora"></div>
+<div class="auth-card">
+    <div class="brand">
+        <div class="brand-icon"><i class="bi bi-heart-pulse-fill"></i></div>
+        <div>
+            <h1>Vita</h1>
+            <p>Healthy Lifestyle Assistant</p>
+        </div>
+    </div>
+
+    <div th:if="${error}" class="alert-box alert-error" th:text="${error}"></div>
+    <div th:if="${message}" class="alert-box alert-ok" th:text="${message}"></div>
+
+    <form th:action="@{/login}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <div class="mb-3">
+            <label class="form-label">Потребителско име</label>
+            <input class="form-control" type="text" name="username" autocomplete="username" required autofocus/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Парола</label>
+            <input class="form-control" type="password" name="password" autocomplete="current-password" required/>
+        </div>
+        <button class="btn btn-glow" type="submit">Вход</button>
+    </form>
+
+    <p class="text-center mt-3 mb-0 small" style="color:var(--muted)">
+        Нямаш акаунт? <a th:href="@{/register}">Регистрация</a>
+    </p>
+
+    <div class="demo-hint">
+        <strong>Demo акаунти</strong> (парола за всички: <code>demo123</code>)<br/>
+        Потребител: <code>demo</code> · <code>maria</code> · <code>ivan</code> (латиница, малки букви)<br/>
+        <code>demo</code> · отслабване &nbsp;|&nbsp;
+        <code>maria</code> · мускули &nbsp;|&nbsp;
+        <code>ivan</code> · издръжливост
+    </div>
+</div>
+</body>
+</html>

@@ -33,15 +33,15 @@ public class LifestyleService {
     public UserProfile createOrUpdateUser(UserProfile profile) {
         UserProfile saved = userRepo.findByUsername(profile.getUsername())
                 .map(existing -> mergeProfile(existing, profile))
-                .orElseGet(() -> {
-                    if (profile.getGoal() == null) profile.setGoal(HealthGoal.MAINTENANCE);
-                    if (profile.getActivityLevel() == null) profile.setActivityLevel(ActivityLevel.MODERATE);
-                    if (profile.getGender() == null) profile.setGender(Gender.UNSPECIFIED);
-                    return userRepo.save(profile);
-                });
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "User not found. Please register first."));
 
         ontologyService.syncPersonProfile(saved);
         return saved;
+    }
+
+    public void syncProfileToOntology(UserProfile profile) {
+        ontologyService.syncPersonProfile(profile);
     }
 
     public UserProfile getUser(String username) {

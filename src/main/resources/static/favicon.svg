@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Vita">
+  <defs>
+    <linearGradient id="mint" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2dd4bf"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#bg)"/>
+  <path fill="url(#mint)" d="M16 25.2s-6.8-4.4-8.6-7.8C5.8 14.4 6.6 11 9.4 9.6c2.1-1.1 4.4-.4 5.8 1.2.3.4.8.4 1.1 0 1.4-1.6 3.7-2.3 5.8-1.2 2.8 1.4 3.6 4.8 2 7.8-1.8 3.4-8.6 7.8-8.6 7.8z"/>
+  <path fill="none" stroke="url(#mint)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+        d="M5 17.5h3.2l2-3.2 2.8 5.6 2.4-4 2 3.2H27"/>
+</svg>

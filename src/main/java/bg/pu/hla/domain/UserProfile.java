@@ -3,6 +3,8 @@ package bg.pu.hla.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,6 +22,10 @@ public class UserProfile {
 
     @Column(nullable = false, unique = true)
     private String username;
+
+    @Column(nullable = true)
+    @JsonIgnore
+    private String passwordHash;
 
     private String displayName;
     private Integer age;
