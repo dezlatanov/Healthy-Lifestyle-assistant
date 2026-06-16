@@ -2,9 +2,7 @@ package bg.pu.hla.service;
 
 import org.springframework.stereotype.Service;
 
-import bg.pu.hla.domain.ActivityLevel;
-import bg.pu.hla.domain.HealthGoal;
-import bg.pu.hla.domain.UserProfile;
+import bg.pu.hla.domain.*;
 import bg.pu.hla.ontology.OntologyRecommendation;
 
 import java.util.ArrayList;
@@ -15,64 +13,118 @@ import java.util.Objects;
 @Service
 public class UserPersonalizationService {
 
-    public List<OntologyRecommendation> personalizeMeals(UserProfile user, List<OntologyRecommendation> meals) {
+    private final UserMetricsService metricsService;
+
+    public UserPersonalizationService(UserMetricsService metricsService) {
+        this.metricsService = metricsService;
+    }
+
+    public UserMetrics metricsFor(UserProfile user, DailyLog log) {
+        return metricsService.compute(user, log);
+    }
+
+    public List<OntologyRecommendation> personalizeMeals(UserProfile user, DailyLog log,
+                                                         List<OntologyRecommendation> meals) {
         if (meals == null || meals.isEmpty()) {
             return List.of();
         }
-        List<OntologyRecommendation> sorted = new ArrayList<>(meals);
+        UserMetrics m = metricsService.compute(user, log);
         HealthGoal goal = user.getGoal() != null ? user.getGoal() : HealthGoal.MAINTENANCE;
 
-        sorted.sort(switch (goal) {
-            case WEIGHT_LOSS -> Comparator.comparingInt(this::caloriesFromDetails);
-            case MUSCLE_GAIN -> Comparator.comparingInt(this::caloriesFromDetails).reversed();
-            default -> Comparator.comparing(OntologyRecommendation::getLabel);
-        });
+        List<Scored> scored = new ArrayList<>();
+        for (OntologyRecommendation meal : meals) {
+            int s = metricsService.scoreMeal(meal, m, goal);
+            scored.add(new Scored(meal, s));
+        }
+        scored.sort(Comparator.comparingInt(Scored::score).reversed());
 
-        return topN(rotateForUser(user, sorted), 6);
+        List<OntologyRecommendation> ranked = scored.stream().map(Scored::item).toList();
+        return topN(rotateForUser(user, m, ranked), 6);
     }
 
-    public List<OntologyRecommendation> personalizeExercises(UserProfile user, List<OntologyRecommendation> exercises) {
+    public List<OntologyRecommendation> personalizeExercises(UserProfile user, DailyLog log,
+                                                             List<OntologyRecommendation> exercises) {
         if (exercises == null || exercises.isEmpty()) {
             return List.of();
         }
-        ActivityLevel activity = user.getActivityLevel() != null ? user.getActivityLevel() : ActivityLevel.MODERATE;
-        List<OntologyRecommendation> sorted = new ArrayList<>(exercises);
+        UserMetrics m = metricsService.compute(user, log);
 
-        sorted.sort((a, b) -> {
-            int scoreA = exerciseScore(a, activity);
-            int scoreB = exerciseScore(b, activity);
-            return Integer.compare(scoreB, scoreA);
-        });
+        List<Scored> scored = new ArrayList<>();
+        for (OntologyRecommendation ex : exercises) {
+            int s = metricsService.scoreExercise(ex, m, log);
+            if (s > 0) {
+                scored.add(new Scored(ex, s));
+            }
+        }
+        if (scored.isEmpty()) {
+            scored = exercises.stream().map(e -> new Scored(e, 1)).toList();
+        }
+        scored.sort(Comparator.comparingInt(Scored::score).reversed());
 
-        return topN(rotateForUser(user, sorted), 6);
+        List<OntologyRecommendation> ranked = scored.stream().map(Scored::item).toList();
+        return topN(rotateForUser(user, m, ranked), 6);
     }
 
-    public List<OntologyRecommendation> personalizeHabits(UserProfile user, List<OntologyRecommendation> habits) {
+    public List<OntologyRecommendation> personalizeHabits(UserProfile user, DailyLog log,
+                                                          List<OntologyRecommendation> habits) {
         if (habits == null || habits.isEmpty()) {
             return List.of();
         }
-        return topN(rotateForUser(user, new ArrayList<>(habits)), 6);
+        UserMetrics m = metricsService.compute(user, log);
+        List<OntologyRecommendation> sorted = new ArrayList<>(habits);
+
+        sorted.sort((a, b) -> Integer.compare(habitScore(b, m, log), habitScore(a, m, log)));
+        return topN(rotateForUser(user, m, sorted), 6);
     }
 
-    public String buildUserHeader(UserProfile user) {
+    public String buildUserHeader(UserProfile user, DailyLog log) {
+        UserMetrics m = metricsService.compute(user, log);
         StringBuilder sb = new StringBuilder();
         sb.append("User: ").append(user.getUsername());
         if (user.getDisplayName() != null && !user.getDisplayName().isBlank()) {
             sb.append(" (").append(user.getDisplayName()).append(")");
         }
-        sb.append(" | Goal: ").append(user.getGoal() != null ? user.getGoal() : "MAINTENANCE");
-        sb.append(" | Activity: ").append(user.getActivityLevel() != null ? user.getActivityLevel() : "MODERATE");
+        sb.append(" | Goal: ").append(user.getGoal() != null ? user.getGoal().getDisplayLabel() : "Поддържане");
+        sb.append(" | Activity: ").append(user.getActivityLevel() != null
+                ? user.getActivityLevel().getDisplayLabel() : "Умерена");
         if (user.getAge() != null) {
             sb.append(" | Age: ").append(user.getAge());
         }
-        if (user.getWeightKg() != null && user.getHeightCm() != null && user.getHeightCm() > 0) {
-            double bmi = user.getWeightKg() / Math.pow(user.getHeightCm() / 100.0, 2);
-            sb.append(String.format(" | BMI: %.1f", bmi));
-        }
+        sb.append(String.format(" | BMI: %.1f (%s)", m.bmi(), m.bmiCategoryBg()));
+        sb.append(String.format(" | Target: %d kcal/day", m.targetCalories()));
         return sb.toString();
     }
 
-    private List<OntologyRecommendation> rotateForUser(UserProfile user, List<OntologyRecommendation> items) {
+    private int habitScore(OntologyRecommendation habit, UserMetrics m, DailyLog log) {
+        String label = habit.getLabel() != null ? habit.getLabel().toLowerCase() : "";
+        int score = 10;
+        if (label.contains("вода") || label.contains("water")) {
+            if (log == null || log.getWaterMl() == null || log.getWaterMl() < m.waterTargetMl()) {
+                score += 30;
+            }
+        }
+        if (label.contains("сън") || label.contains("sleep")) {
+            if (log == null || log.getSleepHours() == null || log.getSleepHours() < m.sleepTargetHours()) {
+                score += 25;
+            }
+        }
+        if (label.contains("стъп") || label.contains("walk")) {
+            if (log == null || log.getSteps() == null || log.getSteps() < m.stepsTarget()) {
+                score += 20;
+            }
+        }
+        if (label.contains("протеин") && userGoalIsMuscle(habit)) {
+            score += 15;
+        }
+        return score;
+    }
+
+    private boolean userGoalIsMuscle(OntologyRecommendation habit) {
+        return habit.getDetails() != null;
+    }
+
+    private List<OntologyRecommendation> rotateForUser(UserProfile user, UserMetrics m,
+                                                    List<OntologyRecommendation> items) {
         if (items.size() <= 1) {
             return items;
         }
@@ -81,7 +133,8 @@ public class UserPersonalizationService {
                 user.getGoal(),
                 user.getActivityLevel(),
                 user.getAge(),
-                user.getWeightKg() != null ? (int) (user.getWeightKg() * 10) : 0
+                user.getWeightKg() != null ? (int) (user.getWeightKg() * 10) : 0,
+                (int) m.targetCalories()
         );
         int offset = Math.floorMod(seed, items.size());
         List<OntologyRecommendation> rotated = new ArrayList<>();
@@ -98,29 +151,5 @@ public class UserPersonalizationService {
         return items.subList(0, Math.min(max, items.size()));
     }
 
-    private int caloriesFromDetails(OntologyRecommendation item) {
-        if (item.getDetails() == null) {
-            return Integer.MAX_VALUE;
-        }
-        String digits = item.getDetails().replaceAll("[^0-9]", "");
-        if (digits.isEmpty()) {
-            return Integer.MAX_VALUE;
-        }
-        try {
-            return Integer.parseInt(digits);
-        } catch (NumberFormatException e) {
-            return Integer.MAX_VALUE;
-        }
-    }
-
-    private int exerciseScore(OntologyRecommendation item, ActivityLevel activity) {
-        String details = item.getDetails() != null ? item.getDetails().toLowerCase() : "";
-        boolean high = details.contains("high");
-        boolean low = details.contains("low");
-        return switch (activity) {
-            case SEDENTARY -> low ? 3 : (high ? 0 : 2);
-            case ACTIVE -> high ? 3 : (low ? 1 : 2);
-            case MODERATE -> 2;
-        };
-    }
+    private record Scored(OntologyRecommendation item, int score) {}
 }

@@ -15,65 +15,66 @@ public class PersonalizedAdviceService {
 
     private final OntologyService ontologyService;
     private final UserPersonalizationService personalization;
+    private final UserMetricsService metricsService;
 
     public PersonalizedAdviceService(OntologyService ontologyService,
-                                       UserPersonalizationService personalization) {
+                                     UserPersonalizationService personalization,
+                                     UserMetricsService metricsService) {
         this.ontologyService = ontologyService;
         this.personalization = personalization;
+        this.metricsService = metricsService;
     }
 
     public Map<String, Object> buildNutritionAdvice(UserProfile user, DailyLog latestLog,
                                                     String query, OntologyQueryResult result) {
-        List<OntologyRecommendation> items = personalization.personalizeMeals(user,
+        UserMetrics m = metricsService.compute(user, latestLog);
+        List<OntologyRecommendation> items = personalization.personalizeMeals(user, latestLog,
                 applyQueryFilters(result.getItems(), query, true));
-        int totalCalories = sumMealCalories(items);
 
-        List<String> tips = new ArrayList<>(buildLogTips(latestLog));
-        tips.addAll(buildGoalTips(user.getGoal(), items, true));
+        List<String> tips = new ArrayList<>(buildMetricsTips(m, latestLog));
+        tips.addAll(buildGoalTips(user.getGoal()));
         if (!query.isBlank() && items.size() < result.getItems().size()) {
-            tips.add(0, "Filtered " + items.size() + " meal(s) matching your query.");
+            tips.add(0, "Филтрирани " + items.size() + " ястия според заявката.");
         }
 
-        String response = formatNutritionText(user, query, items, totalCalories, tips);
-        return buildPayload("nutrition", response, items, tips, user, latestLog, totalCalories);
+        String response = formatNutritionText(user, m, query, items, tips);
+        return buildPayload("nutrition", response, items, tips, user, latestLog, m);
     }
 
     public Map<String, Object> buildFitnessAdvice(UserProfile user, DailyLog latestLog,
                                                   String query, OntologyQueryResult result) {
-        List<OntologyRecommendation> items = personalization.personalizeExercises(user,
+        UserMetrics m = metricsService.compute(user, latestLog);
+        List<OntologyRecommendation> items = personalization.personalizeExercises(user, latestLog,
                 applyQueryFilters(result.getItems(), query, false));
-        ActivityLevel activity = user.getActivityLevel() != null ? user.getActivityLevel() : ActivityLevel.MODERATE;
 
-        List<String> tips = new ArrayList<>(buildLogTips(latestLog));
-        tips.add("Suggested frequency: " + sessionsPerWeek(activity) + " sessions/week.");
-        if (latestLog != null && latestLog.getSteps() != null && latestLog.getSteps() >= 8000) {
-            tips.add("Good step count — add strength work to complement daily movement.");
-        }
+        List<String> tips = new ArrayList<>(buildMetricsTips(m, latestLog));
+        tips.add(String.format("Препоръчителна честота: %d тренировки/седмица.", m.trainingDaysPerWeek()));
+        tips.add(String.format("Макс. интензивност за теб: %s (BMI + възраст + сън).", m.maxExerciseIntensity()));
 
-        String response = formatFitnessText(user, activity, query, items, tips);
-        return buildPayload("fitness", response, items, tips, user, latestLog, 0);
+        String response = formatFitnessText(user, m, query, items, tips);
+        return buildPayload("fitness", response, items, tips, user, latestLog, m);
     }
 
     public Map<String, Object> buildHabitsAdvice(UserProfile user, DailyLog latestLog,
                                                  String query, List<OntologyRecommendation> habits) {
-        List<OntologyRecommendation> items = personalization.personalizeHabits(user,
+        UserMetrics m = metricsService.compute(user, latestLog);
+        List<OntologyRecommendation> items = personalization.personalizeHabits(user, latestLog,
                 applyQueryFilters(habits, query, false));
-        List<String> tips = new ArrayList<>(buildLogTips(latestLog));
-        if (latestLog != null && latestLog.getSleepHours() != null && latestLog.getSleepHours() < 7) {
-            tips.add("Prioritize the sleep habit — recovery supports all other goals.");
-        }
+        List<String> tips = new ArrayList<>(buildMetricsTips(m, latestLog));
 
-        String response = formatHabitsText(user, query, items, tips);
-        return buildPayload("coordinator", response, items, tips, user, latestLog, 0);
+        String response = formatHabitsText(user, m, query, items, tips);
+        return buildPayload("coordinator", response, items, tips, user, latestLog, m);
     }
 
     public Map<String, Object> buildGeneralAdvice(UserProfile user, DailyLog latestLog, String query) {
         HealthGoal goal = user.getGoal() != null ? user.getGoal() : HealthGoal.MAINTENANCE;
-        var meals = personalization.personalizeMeals(user,
+        UserMetrics m = metricsService.compute(user, latestLog);
+
+        var meals = personalization.personalizeMeals(user, latestLog,
                 applyQueryFilters(ontologyService.recommendMealsForGoal(goal).getItems(), query, true));
-        var exercises = personalization.personalizeExercises(user,
+        var exercises = personalization.personalizeExercises(user, latestLog,
                 applyQueryFilters(ontologyService.recommendExercisesForGoal(goal).getItems(), query, false));
-        var habits = personalization.personalizeHabits(user,
+        var habits = personalization.personalizeHabits(user, latestLog,
                 applyQueryFilters(ontologyService.listHabitsForGoal(goal), query, false));
         var plans = ontologyService.listWorkoutPlansForGoal(goal);
 
@@ -81,101 +82,93 @@ public class PersonalizedAdviceService {
         if (!meals.isEmpty()) items.add(meals.get(0));
         if (!exercises.isEmpty()) items.add(exercises.get(0));
         if (!habits.isEmpty()) items.add(habits.get(0));
-
         if (!plans.isEmpty()) items.add(plans.get(0));
 
-        List<String> tips = new ArrayList<>(buildLogTips(latestLog));
-        tips.add("GENERAL plan combines meal, exercise, habit and workout plan from ontology constraints.");
+        List<String> tips = new ArrayList<>(buildMetricsTips(m, latestLog));
 
         String response = """
-                Lifestyle Summary for %s
-                Goal: %s | Activity: %s
-                Top meal: %s
-                Top exercise: %s
-                Top habit: %s
-                Workout plan: %s
+                Персонален план за %s
+                Цел: %s | BMI: %.1f (%s)
+                Дневни калории: %d | Протеин: %dg
+                Топ ястие: %s
+                Топ упражнение: %s
+                Топ навик: %s
+                План: %s
                 """.formatted(
-                user.getUsername(),
-                goal,
-                user.getActivityLevel() != null ? user.getActivityLevel() : "MODERATE",
-                meals.isEmpty() ? "none" : meals.get(0).getLabel(),
-                exercises.isEmpty() ? "none" : exercises.get(0).getLabel(),
-                habits.isEmpty() ? "none" : habits.get(0).getLabel(),
-                plans.isEmpty() ? "none" : plans.get(0).getLabel()
+                user.getDisplayName() != null ? user.getDisplayName() : user.getUsername(),
+                goal.getDisplayLabel(), m.bmi(), m.bmiCategoryBg(),
+                m.targetCalories(), m.proteinGrams(),
+                meals.isEmpty() ? "—" : meals.get(0).getLabel(),
+                exercises.isEmpty() ? "—" : exercises.get(0).getLabel(),
+                habits.isEmpty() ? "—" : habits.get(0).getLabel(),
+                plans.isEmpty() ? "—" : plans.get(0).getLabel()
         );
 
-        return buildPayload("coordinator", response, items, tips, user, latestLog, sumMealCalories(meals));
+        return buildPayload("coordinator", response, items, tips, user, latestLog, m);
     }
 
     private Map<String, Object> buildPayload(String agent, String response, List<OntologyRecommendation> items,
-                                             List<String> tips, UserProfile user, DailyLog log, int calories) {
+                                             List<String> tips, UserProfile user, DailyLog log, UserMetrics m) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("agent", agent);
         payload.put("response", response);
         payload.put("contextSummary", buildContextSummary(user, log));
         payload.put("tips", tips);
+        payload.put("metrics", metricsToMap(m));
         payload.put("recommendations", items.stream()
                 .map(i -> Map.of(
                         "label", i.getLabel(),
                         "details", i.getDetails() != null ? i.getDetails() : "",
                         "type", i.getType() != null ? i.getType() : ""))
                 .toList());
-        if (calories > 0) {
-            payload.put("estimatedCalories", calories);
-        }
+        payload.put("targetCalories", m.targetCalories());
         return payload;
     }
 
-    public String buildContextSummary(UserProfile user, DailyLog log) {
-        StringBuilder sb = new StringBuilder(personalization.buildUserHeader(user)).append(" ");
-        if (user.getWeightKg() != null && user.getHeightCm() != null && user.getHeightCm() > 0) {
-            double bmi = user.getWeightKg() / Math.pow(user.getHeightCm() / 100.0, 2);
-            sb.append(String.format("BMI %.1f. ", bmi));
-        }
-        if (user.getGoal() != null) {
-            sb.append("Goal ").append(user.getGoal()).append(". ");
-        }
-        if (log != null) {
-            sb.append(String.format("Latest log (%s): %d ml water, %d steps, %.1f h sleep.",
-                    log.getLogDate(),
-                    log.getWaterMl() != null ? log.getWaterMl() : 0,
-                    log.getSteps() != null ? log.getSteps() : 0,
-                    log.getSleepHours() != null ? log.getSleepHours() : 0.0));
-        } else {
-            sb.append("No daily log yet — agents use profile + ontology only.");
-        }
-        return sb.toString();
+    public Map<String, Object> metricsToMap(UserMetrics m) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("bmi", m.bmi());
+        map.put("bmiCategory", m.bmiCategoryBg());
+        map.put("targetCalories", m.targetCalories());
+        map.put("proteinGrams", m.proteinGrams());
+        map.put("carbsGrams", m.carbsGrams());
+        map.put("fatGrams", m.fatGrams());
+        map.put("waterTargetMl", m.waterTargetMl());
+        map.put("stepsTarget", m.stepsTarget());
+        map.put("trainingDaysPerWeek", m.trainingDaysPerWeek());
+        return map;
     }
 
-    private List<String> buildLogTips(DailyLog log) {
+    public String buildContextSummary(UserProfile user, DailyLog log) {
+        UserMetrics m = metricsService.compute(user, log);
+        return metricsService.formatMetricsBlock(m, user, log);
+    }
+
+    private List<String> buildMetricsTips(UserMetrics m, DailyLog log) {
+        List<String> tips = new ArrayList<>(m.reasoningNotes());
         if (log == null) {
-            return List.of("Log water, steps, and sleep to get more personalized tips.");
+            tips.add("Запиши дневник (вода, стъпки, сън) за още по-точни тренировъчни и хранителни корекции.");
+            return tips;
         }
-        List<String> tips = new ArrayList<>();
-        if (log.getWaterMl() != null && log.getWaterMl() < 1500) {
-            tips.add("Water intake is low (" + log.getWaterMl() + " ml) — aim for at least 2000 ml.");
+        if (log.getWaterMl() != null && log.getWaterMl() < m.waterTargetMl() * 0.8) {
+            tips.add(String.format("Вода: %d ml — цел %d ml/ден.", log.getWaterMl(), m.waterTargetMl()));
         }
-        if (log.getSteps() != null && log.getSteps() < 6000) {
-            tips.add("Steps are below 6000 — a 20-minute walk would help today.");
+        if (log.getSteps() != null && log.getSteps() < m.stepsTarget()) {
+            tips.add(String.format("Стъпки: %d — цел %d/ден.", log.getSteps(), m.stepsTarget()));
         }
-        if (log.getSleepHours() != null && log.getSleepHours() < 7) {
-            tips.add("Sleep is under 7 hours — recovery may affect energy and cravings.");
-        }
-        if (tips.isEmpty()) {
-            tips.add("Daily log looks solid — keep consistent habits.");
+        if (log.getSleepHours() != null && log.getSleepHours() < m.sleepTargetHours()) {
+            tips.add(String.format("Сън: %.1f h — цел %.1f h за оптимално възстановяване.", log.getSleepHours(), m.sleepTargetHours()));
         }
         return tips;
     }
 
-    private List<String> buildGoalTips(HealthGoal goal, List<OntologyRecommendation> items, boolean nutrition) {
-        if (!nutrition || goal == null) {
-            return List.of();
-        }
+    private List<String> buildGoalTips(HealthGoal goal) {
+        if (goal == null) return List.of();
         return switch (goal) {
-            case WEIGHT_LOSS -> List.of("Focus on lean meals with vegetables and controlled portions.");
-            case MUSCLE_GAIN -> List.of("Prioritize protein across meals and post-workout nutrition.");
-            case ENDURANCE -> List.of("Balance carbs and hydration around training days.");
-            case MAINTENANCE -> List.of("Maintain variety — rotate meals to avoid diet fatigue.");
+            case WEIGHT_LOSS -> List.of("Фокус: калorie deficit с висок протеин — запазва мускулите при сваляне.");
+            case MUSCLE_GAIN -> List.of("Фокус: калorie surplus + 1.8–2g протеин/kg — хранене около тренировка.");
+            case ENDURANCE -> List.of("Фокус: въглехидрати около тренировка + хидратация.");
+            case MAINTENANCE -> List.of("Фокус: баланс и разнообразие — устойчиви навици.");
         };
     }
 
@@ -244,76 +237,56 @@ public class PersonalizedAdviceService {
         }
     }
 
-    private int sumMealCalories(List<OntologyRecommendation> meals) {
-        return meals.stream().mapToInt(this::parseCaloriesFromDetails).filter(c -> c != Integer.MAX_VALUE).sum();
-    }
-
-    private int sessionsPerWeek(ActivityLevel activity) {
-        return switch (activity) {
-            case SEDENTARY -> 3;
-            case MODERATE -> 4;
-            case ACTIVE -> 5;
-        };
-    }
-
-    private String formatNutritionText(UserProfile user, String query,
-                                       List<OntologyRecommendation> items, int calories, List<String> tips) {
+    private String formatNutritionText(UserProfile user, UserMetrics m, String query,
+                                       List<OntologyRecommendation> items, List<String> tips) {
         String mealList = items.stream()
-                .map(i -> i.getLabel() + (i.getDetails().isBlank() ? "" : " (" + i.getDetails() + ")"))
+                .map(i -> i.getLabel() + (i.getDetails() == null || i.getDetails().isBlank() ? "" : " (" + i.getDetails() + ")"))
                 .collect(Collectors.joining("; "));
         return """
-                Nutrition Agent Analysis
-                User: %s | Goal: %s
-                Query focus: %s
-                Recommended meals: %s
-                Estimated calories (shown items): %d kcal
-                Tips: %s
+                План за хранене — %s
+                BMI %.1f (%s) | Дневна цел: %d kcal | Протеин: %dg
+                Цел на основно ястие: ~%d kcal
+                Препоръчани ястия: %s
+                Съвети: %s
                 """.formatted(
-                user.getUsername(),
-                user.getGoal(),
-                query.isBlank() ? "general recommendation" : query,
-                mealList.isBlank() ? "none matched" : mealList,
-                calories == 0 ? sumMealCalories(items) : calories,
+                user.getDisplayName() != null ? user.getDisplayName() : user.getUsername(),
+                m.bmi(), m.bmiCategoryBg(), m.targetCalories(), m.proteinGrams(), m.targetMealCalories(),
+                mealList.isBlank() ? "няма съвпадения" : mealList,
                 String.join(" | ", tips));
     }
 
-    private String formatFitnessText(UserProfile user, ActivityLevel activity, String query,
+    private String formatFitnessText(UserProfile user, UserMetrics m, String query,
                                      List<OntologyRecommendation> items, List<String> tips) {
         String exerciseList = items.stream()
-                .map(i -> i.getLabel() + " - " + i.getDetails())
+                .map(i -> i.getLabel() + " — " + i.getDetails())
                 .collect(Collectors.joining("; "));
         return """
-                Fitness Agent Plan
-                User: %s | Goal: %s | Activity: %s
-                Query focus: %s
-                Recommended exercises: %s
-                Tips: %s
+                Тренировъчен план — %s
+                BMI %.1f | Възраст %d (%s) | %d тренировки/седм.
+                Макс. интензивност: %s
+                Упражнения: %s
+                Съвети: %s
                 """.formatted(
-                user.getUsername(),
-                user.getGoal(),
-                activity,
-                query.isBlank() ? "general plan" : query,
-                exerciseList.isBlank() ? "none matched" : exerciseList,
+                user.getDisplayName() != null ? user.getDisplayName() : user.getUsername(),
+                m.bmi(), m.age(), m.ageGroupBg(), m.trainingDaysPerWeek(), m.maxExerciseIntensity(),
+                exerciseList.isBlank() ? "няма съвпадения" : exerciseList,
                 String.join(" | ", tips));
     }
 
-    private String formatHabitsText(UserProfile user, String query,
+    private String formatHabitsText(UserProfile user, UserMetrics m, String query,
                                     List<OntologyRecommendation> items, List<String> tips) {
         String habitList = items.stream()
-                .map(h -> "- " + h.getLabel() + " (" + h.getDetails() + ")")
+                .map(h -> "• " + h.getLabel() + " (" + h.getDetails() + ")")
                 .collect(Collectors.joining("\n"));
         return """
-                Habit Coach (Coordinator)
-                User: %s | Goal: %s
-                Query focus: %s
-                Recommended habits:
+                Навици — %s
+                BMI %.1f | Вода цел: %d ml | Стъпки цел: %d
                 %s
-                Tips: %s
+                Съвети: %s
                 """.formatted(
-                user.getUsername(),
-                user.getGoal(),
-                query.isBlank() ? "all habits" : query,
-                habitList.isBlank() ? "No habits matched." : habitList,
+                user.getDisplayName() != null ? user.getDisplayName() : user.getUsername(),
+                m.bmi(), m.waterTargetMl(), m.stepsTarget(),
+                habitList.isBlank() ? "Няма намерени навици." : habitList,
                 String.join(" | ", tips));
     }
 }

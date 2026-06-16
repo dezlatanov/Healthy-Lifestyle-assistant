@@ -73,7 +73,7 @@ public class FitnessAgent extends Agent {
         HealthGoal goal = HealthGoal.valueOf(goalStr);
         var raw = ontologyService.recommendExercisesForGoal(goal);
         UserPersonalizationService personalization = SpringContextHolder.getBean(UserPersonalizationService.class);
-        var personalizedItems = personalization.personalizeExercises(user, raw.getItems());
+        var personalizedItems = personalization.personalizeExercises(user, latestLog, raw.getItems());
         var result = OntologyQueryResult.builder()
                 .items(personalizedItems)
                 .totalCalories(0)

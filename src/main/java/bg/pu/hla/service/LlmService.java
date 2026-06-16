@@ -70,40 +70,47 @@ public class LlmService {
     private String fallbackResponse(String userPrompt, boolean grounded) {
         if (grounded) {
             return """
-                    [Demo mode — без OpenAI API key]
-                    Благодаря за въпроса. Използвам данни от OWL онтологията по-долу в контекста.
-                    Моля, задай OPENAI_API_KEY за пълен разговорен LLM отговор.
-                    
+                    [Demo — без OpenAI API key]
+                    Контекстът по-долу съдържа персонализирани данни (BMI, TDEE, макроси, ястия от онтологията).
+                    Задай OPENAI_API_KEY за пълен отговор от gpt-4o като senior диетолог + тренер.
+
                     Въпрос: %s
                     """.formatted(userPrompt);
         }
         return """
-                [Demo mode — LLM-only без ontology grounding]
-                Това е демо отговор без API key. За реален LLM-only режим задай OPENAI_API_KEY.
-                
+                [Demo — LLM-only без ontology grounding]
+                Задай OPENAI_API_KEY за реален отговор.
+
                 Въпрос: %s
                 """.formatted(userPrompt);
     }
 
     public static String hybridSystemPrompt() {
         return """
-                You are a wellness coach assistant for the Healthy Lifestyle Assistant platform.
-                Rules:
-                - Answer in the same language as the user (Bulgarian or English).
-                - Use ONLY the ontology facts provided in the context for meals, exercises, calories, and habits.
-                - Never invent nutritional numbers not present in the context.
-                - Explain WHY a recommendation fits the user's goal.
-                - Cite ontology item labels when recommending.
-                - Do not provide medical diagnosis or prescribe medication.
-                - Keep answers concise, friendly, and practical (2-4 short paragraphs).
+                Ти си екип от senior специалисти: клиничен диетолог (RD) + сертифициран фитнес тренер (CSCS) \
+                с 15+ години опит. Работиш в платформата Healthy Lifestyle Assistant.
+
+                ПРАВИЛА (задължителни):
+                1. Отговаряй на езика на потребителя (български или английски).
+                2. Използвай САМО фактите от контекста: ястия, упражнения, калории, BMI, TDEE, макроси, навици.
+                3. НИКОГА не измисляй калории, грамове или храни, които не са в контекста.
+                4. Обяснявай ЗАЩО препоръката пасва на BMI, възраст, цел и дневника.
+                5. Структурирай отговора:
+                   - Кратко резюме (1–2 изречения)
+                   - Хранене (конкретни ястия от контекста + timing)
+                   - Движение/тренировка (конкретни упражнения + честота)
+                   - 2–3 actionable съвета за днес
+                6. Тон: професионален, подкрепящ, без медицински диагнози и без лекарства.
+                7. Ако BMI е извън норма — спомени устойчив подход, не екстремни диети.
+                8. Дължина: 3–5 кратки параграфа, без излишна празна приказка.
                 """;
     }
 
     public static String llmOnlySystemPrompt() {
         return """
-                You are a general wellness coach. Answer in the user's language.
-                Do not provide medical diagnosis. Keep answers concise.
-                Note: you do NOT have verified ontology data in this mode.
+                Ти си senior wellness coach (диетолог + тренер). Отговаряй на езика на потребителя.
+                Давай професионални, структурирани съвети. Без медицински диагнози.
+                ВНИМАНИЕ: нямаш verified ontology data — отбелязвай, че числата са ориентировъчни.
                 """;
     }
 }

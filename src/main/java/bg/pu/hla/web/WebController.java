@@ -30,6 +30,7 @@ public class WebController {
     public String home(@RequestParam(required = false) String user, Model model) {
         model.addAttribute("goals", Arrays.asList(HealthGoal.values()));
         model.addAttribute("activityLevels", Arrays.asList(ActivityLevel.values()));
+        model.addAttribute("genders", Arrays.asList(Gender.values()));
         model.addAttribute("demoUsers", DEMO_USERS);
         model.addAttribute("consultationTypes", Arrays.stream(ConsultationType.values())
                 .filter(t -> t != ConsultationType.CHAT)

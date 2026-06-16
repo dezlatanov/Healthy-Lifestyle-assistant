@@ -27,6 +27,9 @@ public class UserProfile {
     private Double heightCm;
 
     @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    @Enumerated(EnumType.STRING)
     private HealthGoal goal;
 
     @Enumerated(EnumType.STRING)

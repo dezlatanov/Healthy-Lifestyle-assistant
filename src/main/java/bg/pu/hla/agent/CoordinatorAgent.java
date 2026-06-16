@@ -129,7 +129,7 @@ public class CoordinatorAgent extends Agent {
         List<OntologyRecommendation> habits = ontologyService.listHabitsForGoal(
                 user.getGoal() != null ? user.getGoal() : bg.pu.hla.domain.HealthGoal.MAINTENANCE);
         UserPersonalizationService personalization = SpringContextHolder.getBean(UserPersonalizationService.class);
-        habits = personalization.personalizeHabits(user, habits);
+        habits = personalization.personalizeHabits(user, latestLog, habits);
         Map<String, Object> responsePayload = adviceService.buildHabitsAdvice(user, latestLog, query, habits);
         String response = String.valueOf(responsePayload.get("response"));
 

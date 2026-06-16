@@ -20,19 +20,22 @@ public class OntologyContextService {
     private final OntologyService ontologyService;
     private final PersonalizedAdviceService adviceService;
     private final UserPersonalizationService personalization;
+    private final UserMetricsService metricsService;
 
     public record OntologyContext(
             ConsultationType intent,
             List<OntologyRecommendation> items,
             String sparqlUsed,
             String contextText,
-            String profileSummary
+            String profileSummary,
+            UserMetrics metrics
     ) {
     }
 
     public OntologyContext buildContext(UserProfile user, DailyLog latestLog, String userMessage) {
         ConsultationType intent = ChatIntentDetector.detect(userMessage);
         HealthGoal goal = user.getGoal() != null ? user.getGoal() : HealthGoal.MAINTENANCE;
+        UserMetrics metrics = metricsService.compute(user, latestLog);
 
         List<OntologyRecommendation> items = new ArrayList<>();
         String sparql = "";
@@ -40,48 +43,52 @@ public class OntologyContextService {
         switch (intent) {
             case NUTRITION -> {
                 OntologyQueryResult meals = ontologyService.recommendMealsForGoal(goal);
-                items = personalization.personalizeMeals(user, meals.getItems());
+                items = personalization.personalizeMeals(user, latestLog, meals.getItems());
                 sparql = meals.getSparqlUsed();
             }
             case FITNESS -> {
                 OntologyQueryResult exercises = ontologyService.recommendExercisesForGoal(goal);
-                items = personalization.personalizeExercises(user, exercises.getItems());
+                items = personalization.personalizeExercises(user, latestLog, exercises.getItems());
                 sparql = exercises.getSparqlUsed();
             }
             case HABITS -> {
-                items = personalization.personalizeHabits(user, ontologyService.listHabitsForGoal(goal));
+                items = personalization.personalizeHabits(user, latestLog,
+                        ontologyService.listHabitsForGoal(goal));
                 sparql = "listHabitsForGoal(" + goal + ")";
             }
             default -> {
-                var meals = personalization.personalizeMeals(user,
+                var meals = personalization.personalizeMeals(user, latestLog,
                         ontologyService.recommendMealsForGoal(goal).getItems());
-                var exercises = personalization.personalizeExercises(user,
+                var exercises = personalization.personalizeExercises(user, latestLog,
                         ontologyService.recommendExercisesForGoal(goal).getItems());
-                var habits = personalization.personalizeHabits(user,
+                var habits = personalization.personalizeHabits(user, latestLog,
                         ontologyService.listHabitsForGoal(goal));
                 var plans = ontologyService.listWorkoutPlansForGoal(goal);
                 if (!meals.isEmpty()) items.add(meals.get(0));
                 if (!exercises.isEmpty()) items.add(exercises.get(0));
                 if (!habits.isEmpty()) items.add(habits.get(0));
                 if (!plans.isEmpty()) items.add(plans.get(0));
-                sparql = "generalCombinedQueries";
+                sparql = "generalCombinedQueries+UserMetrics";
             }
         }
 
         String profileSummary = adviceService.buildContextSummary(user, latestLog);
-        String contextText = formatContextBlock(user, intent, goal, items, profileSummary);
+        String contextText = formatContextBlock(user, latestLog, intent, goal, items, profileSummary, metrics);
 
-        return new OntologyContext(intent, items, sparql, contextText, profileSummary);
+        return new OntologyContext(intent, items, sparql, contextText, profileSummary, metrics);
     }
 
-    private String formatContextBlock(UserProfile user, ConsultationType intent, HealthGoal goal,
-                                      List<OntologyRecommendation> items, String profileSummary) {
+    private String formatContextBlock(UserProfile user, DailyLog latestLog, ConsultationType intent,
+                                      HealthGoal goal, List<OntologyRecommendation> items,
+                                      String profileSummary, UserMetrics metrics) {
         StringBuilder sb = new StringBuilder();
-        sb.append(personalization.buildUserHeader(user)).append("\n");
-        sb.append("Profile context: ").append(profileSummary).append("\n");
+        sb.append(personalization.buildUserHeader(user, latestLog)).append("\n");
+        sb.append(profileSummary).append("\n");
         sb.append("Detected intent: ").append(intent).append("\n");
-        sb.append("Health goal: ").append(goal).append("\n");
-        sb.append("Ontology-backed facts (ONLY use these for calories, meals, exercises — do not invent numbers):\n");
+        sb.append("Health goal: ").append(goal.getDisplayLabel()).append("\n");
+        sb.append(String.format("Daily macro targets: P %dg | C %dg | F %dg | Meal target ~%d kcal\n",
+                metrics.proteinGrams(), metrics.carbsGrams(), metrics.fatGrams(), metrics.targetMealCalories()));
+        sb.append("Ontology-backed recommendations (ONLY use these facts — do not invent numbers):\n");
         if (items.isEmpty()) {
             sb.append("- No matching ontology items found.\n");
         } else {

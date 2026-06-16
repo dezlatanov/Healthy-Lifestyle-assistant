@@ -73,7 +73,7 @@ public class NutritionAgent extends Agent {
         HealthGoal goal = HealthGoal.valueOf(goalStr);
         var raw = ontologyService.recommendMealsForGoal(goal);
         UserPersonalizationService personalization = SpringContextHolder.getBean(UserPersonalizationService.class);
-        var personalizedItems = personalization.personalizeMeals(user, raw.getItems());
+        var personalizedItems = personalization.personalizeMeals(user, latestLog, raw.getItems());
         var result = OntologyQueryResult.builder()
                 .items(personalizedItems)
                 .totalCalories(raw.getTotalCalories())

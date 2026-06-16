@@ -17,20 +17,21 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        seedUser("demo", "Demo User", 28, 75.0, 178.0,
+        seedUser("demo", "Дани", Gender.MALE, 28, 82.0, 178.0,
                 HealthGoal.WEIGHT_LOSS, ActivityLevel.MODERATE);
-        seedUser("maria", "Мария", 32, 62.0, 168.0,
+        seedUser("maria", "Мария", Gender.FEMALE, 32, 58.0, 168.0,
                 HealthGoal.MUSCLE_GAIN, ActivityLevel.ACTIVE);
-        seedUser("ivan", "Иван", 45, 88.0, 175.0,
+        seedUser("ivan", "Иван", Gender.MALE, 52, 92.0, 175.0,
                 HealthGoal.ENDURANCE, ActivityLevel.MODERATE);
     }
 
-    private void seedUser(String username, String displayName, int age,
+    private void seedUser(String username, String displayName, Gender gender, int age,
                           double weight, double height, HealthGoal goal, ActivityLevel activity) {
         if (userRepo.findByUsername(username).isEmpty()) {
             lifestyleService.createOrUpdateUser(UserProfile.builder()
                     .username(username)
                     .displayName(displayName)
+                    .gender(gender)
                     .age(age)
                     .weightKg(weight)
                     .heightCm(height)

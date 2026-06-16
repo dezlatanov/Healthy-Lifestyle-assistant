@@ -137,20 +137,15 @@ public class HybridChatService {
     private String buildOfflineHybridResponse(String userMessage, OntologyContextService.OntologyContext ctx) {
         String sources = ontologyContextService.formatSources(ctx.items());
         return """
-                Здравей! (Hybrid demo — без OpenAI API key, отговорът е grounded в OWL онтологията)
-                
+                Здравей! Персонализиран план (BMI, TDEE, макроси + OWL):
+
                 Въпрос: %s
-                
-                Открит intent: %s
-                
-                На база SPARQL заявки към онтологията, ето проверените препоръки:
-                %s
-                
-                Обяснение: тези елементи са извлечени от OWL knowledge base и са подходящи за твоята цел.
-                За пълен разговорен LLM отговор задай OPENAI_API_KEY.
+
+                Препоръки: %s
+
+                За пълен отговор от gpt-4o (senior диетолог + тренер) — задай OPENAI_API_KEY.
                 """.formatted(
                 userMessage,
-                ctx.intent(),
                 sources.isBlank() ? "няма намерени елементи" : sources
         );
     }

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import bg.pu.hla.config.AppProperties;
 import bg.pu.hla.domain.ActivityLevel;
 import bg.pu.hla.domain.HealthGoal;
+import bg.pu.hla.domain.UserProfile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -228,7 +229,16 @@ public class OntologyService {
     }
 
     public synchronized String addPersonInstance(String username, HealthGoal goal, ActivityLevel activityLevel) {
-        String personUri = NS + "Person_" + sanitize(username);
+        UserProfile stub = UserProfile.builder()
+                .username(username)
+                .goal(goal)
+                .activityLevel(activityLevel)
+                .build();
+        return syncPersonProfile(stub);
+    }
+
+    public synchronized String syncPersonProfile(UserProfile user) {
+        String personUri = NS + "Person_" + sanitize(user.getUsername());
         Resource person = model.getResource(personUri);
         if (!person.hasProperty(RDF.type)) {
             person.addProperty(RDF.type, model.createResource(NS + "Person"));
@@ -237,17 +247,43 @@ public class OntologyService {
         Property usernameProp = model.createProperty(NS + "username");
         Property hasGoalProp = model.createProperty(NS + "hasGoal");
         Property hasActivityProp = model.createProperty(NS + "hasActivityLevel");
+        Property ageProp = model.createProperty(NS + "personAge");
+        Property weightProp = model.createProperty(NS + "weightKg");
+        Property heightProp = model.createProperty(NS + "heightCm");
+        Property bmiProp = model.createProperty(NS + "bmi");
 
         model.removeAll(person, usernameProp, null);
         model.removeAll(person, hasGoalProp, null);
         model.removeAll(person, hasActivityProp, null);
+        model.removeAll(person, ageProp, null);
+        model.removeAll(person, weightProp, null);
+        model.removeAll(person, heightProp, null);
+        model.removeAll(person, bmiProp, null);
 
-        person.addProperty(usernameProp, username);
-        person.addProperty(hasGoalProp, model.createResource(mapGoalToUri(goal)));
-        person.addProperty(hasActivityProp, model.createResource(mapActivityToUri(activityLevel)));
+        person.addProperty(usernameProp, user.getUsername());
+        if (user.getGoal() != null) {
+            person.addProperty(hasGoalProp, model.createResource(mapGoalToUri(user.getGoal())));
+        }
+        if (user.getActivityLevel() != null) {
+            person.addProperty(hasActivityProp, model.createResource(mapActivityToUri(user.getActivityLevel())));
+        }
+        if (user.getAge() != null) {
+            person.addLiteral(ageProp, user.getAge());
+        }
+        if (user.getWeightKg() != null) {
+            person.addLiteral(weightProp, user.getWeightKg());
+        }
+        if (user.getHeightCm() != null) {
+            person.addLiteral(heightProp, user.getHeightCm());
+        }
+        if (user.getWeightKg() != null && user.getHeightCm() != null && user.getHeightCm() > 0) {
+            double bmi = user.getWeightKg() / Math.pow(user.getHeightCm() / 100.0, 2);
+            person.addLiteral(bmiProp, Math.round(bmi * 10.0) / 10.0);
+        }
 
         infModel.rebind();
-        log.info("Synced person instance in ontology: {} goal={} activity={}", personUri, goal, activityLevel);
+        log.info("Synced person in ontology: {} goal={} age={} weight={}",
+                personUri, user.getGoal(), user.getAge(), user.getWeightKg());
         return personUri;
     }
 

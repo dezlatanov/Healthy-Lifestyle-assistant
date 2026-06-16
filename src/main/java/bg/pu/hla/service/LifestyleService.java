@@ -36,14 +36,11 @@ public class LifestyleService {
                 .orElseGet(() -> {
                     if (profile.getGoal() == null) profile.setGoal(HealthGoal.MAINTENANCE);
                     if (profile.getActivityLevel() == null) profile.setActivityLevel(ActivityLevel.MODERATE);
+                    if (profile.getGender() == null) profile.setGender(Gender.UNSPECIFIED);
                     return userRepo.save(profile);
                 });
 
-        ontologyService.addPersonInstance(
-                saved.getUsername(),
-                saved.getGoal(),
-                saved.getActivityLevel()
-        );
+        ontologyService.syncPersonProfile(saved);
         return saved;
     }
 
@@ -138,6 +135,7 @@ public class LifestyleService {
         if (incoming.getHeightCm() != null) existing.setHeightCm(incoming.getHeightCm());
         if (incoming.getGoal() != null) existing.setGoal(incoming.getGoal());
         if (incoming.getActivityLevel() != null) existing.setActivityLevel(incoming.getActivityLevel());
+        if (incoming.getGender() != null) existing.setGender(incoming.getGender());
         return userRepo.save(existing);
     }
 }
