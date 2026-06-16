@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>DOCUMENTATION</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<h1 id="healthy-lifestyle-assistant">Healthy Lifestyle Assistant</h1>
+<h2
+id="multi-agent-system-for-fitness-nutrition-and-daily-habits">Multi-Agent
+System for Fitness, Nutrition and Daily Habits</h2>
+<p><strong>Дисциплини:</strong> Интелигентни системи · Онтологично
+инженерство · Интелигентни софтуерни архитектури · Практикум</p>
+<p><strong>Автор:</strong> Даниел Златанов фн: 2501697001<br />
+<strong>Специалност:</strong> Магистър „Софтуерни технологии“ със
+специализация „Системи с изкуствен интелект“<br />
+<strong>Университет:</strong> Пловдивски университет «Паисий
+Хилендарски»<br />
+<strong>Година:</strong> 2025/2026</p>
+<hr />
+<h2 id="резюме">1. Резюме</h2>
+<p><strong>Healthy Lifestyle Assistant (HLA)</strong> е интелигентна
+multi-agent система за персонализирани препоръки относно хранене,
+физическа активност и ежедневни навици. Проектът е разработен в рамките
+на магистърската програма „Системи с изкуствен интелект“ и интегрира
+знания от четири учебни дисциплини.</p>
+<p>Системата комбинира Spring Boot web приложение, JADE agent platform с
+FIPA ACL комуникация, OWL онтология с Apache Jena reasoning (SPARQL) и
+H2 релационна база данни. Специализирани агенти — NutritionAgent и
+FitnessAgent — извличат препоръки от онтологията чрез свойствата
+<code>mealSuitableForGoal</code> и <code>exerciseSuitableForGoal</code>.
+CoordinatorAgent orchestration-ва ACL flow-а (включително HABITS и
+GENERAL), а GatewayAgent и <code>AgentRequestQueue</code> осигуряват
+bridge между Spring HTTP threads и JADE agent threads.</p>
+<p>Ключов design principle е <strong>hybrid storage</strong>: статичното
+domain knowledge (храни, упражнения, цели) живее в OWL; динамичните
+данни (профил, daily logs, ACL audit) — в H2.
+<strong><code>PersonalizedAdviceService</code></strong> комбинира
+profile, последен daily log и query text за по-динамични (но не
+conversational) agent отговори. Препоръките са образователни и не
+заменят медицински съвет.</p>
+<hr />
+<h2 id="въведение">2. Въведение</h2>
+<h3 id="мотивация">2.1. Мотивация</h3>
+<p>Съвременните lifestyle приложения често използват hard-coded правила,
+които не обясняват <em>защо</em> дадена препоръка е подходяща и трудно
+се разширяват. HLA решава това чрез:</p>
+<ul>
+<li><strong>Онтология</strong> — формален, машинно обработваем domain
+model;</li>
+<li><strong>Multi-agent system</strong> — specialization (Nutrition vs
+Fitness);</li>
+<li><strong>FIPA ACL</strong> — стандартизирана agent
+communication;</li>
+<li><strong>Hybrid persistence</strong> — ontology + relational DB.</li>
+</ul>
+<h3 id="цели-и-mapping-към-заданието">2.2. Цели и mapping към
+заданието</h3>
+<table>
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 65%" />
+</colgroup>
+<thead>
+<tr>
+<th>Изискване от заданието</th>
+<th>Реализация</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GUI приложение</td>
+<td>Web UI — Thymeleaf + Bootstrap 5</td>
+</tr>
+<tr>
+<td>Онтологии</td>
+<td><code>healthy_lifestyle.owl</code> + Apache Jena</td>
+</tr>
+<tr>
+<td>≥ 2 типа агенти</td>
+<td>NutritionAgent, FitnessAgent</td>
+</tr>
+<tr>
+<td>ACL комуникация</td>
+<td>JADE, FIPA REQUEST / INFORM / FAILURE</td>
+</tr>
+<tr>
+<td>Манипулация на онтологии</td>
+<td>Runtime add custom meals, Person, habit links</td>
+</tr>
+<tr>
+<td>База данни</td>
+<td>H2 — profiles, logs, consultations, ACL audit</td>
+</tr>
+<tr>
+<td>Документация</td>
+<td>Настоящ документ</td>
+</tr>
+</tbody>
+</table>
+<h3 id="обхват">2.3. Обхват</h3>
+<p><strong>В обхват:</strong> nutrition/fitness/habits/general
+consultations, daily logs с history в UI, ontology manipulation (custom
+meals), ACL audit, персонализация по profile + logs + query.<br />
+<strong>Извън обхват:</strong> medical diagnosis, wearables,
+LLM/chatbot, authentication. Прототип за academic demo — <strong>не е
+свободен чат като ChatGPT</strong>, а structured agent consultation.</p>
+<h3 id="връзка-с-дисциплините">2.4. Връзка с дисциплините</h3>
+<table>
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 70%" />
+</colgroup>
+<thead>
+<tr>
+<th>Дисциплина</th>
+<th>Принос</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Интелигентни системи</td>
+<td>Multi-agent, ACL, coordinator pattern, SPARQL reasoning</td>
+</tr>
+<tr>
+<td>Онтologично инженерство</td>
+<td>OWL classes/properties, individuals, runtime manipulation</td>
+</tr>
+<tr>
+<td>Интелигентни архитектури</td>
+<td>Layered Spring Boot design, separation of concerns</td>
+</tr>
+<tr>
+<td>Практикум</td>
+<td>End-to-end working application, testing, demo</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="анализ-на-предметната-област">3. Анализ на предметната
+област</h2>
+<h3 id="ключови-понятия">3.1. Ключови понятия</h3>
+<ul>
+<li><strong>Person</strong> — потребител с goal и activity level<br />
+</li>
+<li><strong>Goal</strong> — WeightLoss, MuscleGain, Maintenance,
+Endurance<br />
+</li>
+<li><strong>Meal / Food / Nutrient</strong> — хранителна йерархия<br />
+</li>
+<li><strong>Exercise</strong> — Cardio, Strength, Flexibility
+упражнения<br />
+</li>
+<li><strong>Habit</strong> — ежедневни навици (вода, сън, стъпки)<br />
+</li>
+<li><strong>WorkoutPlan</strong> — план от препоръчани упражнения</li>
+</ul>
+<h3 id="функционални-изисквания">3.2. Функционални изисквания</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Изискване</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FR-1</td>
+<td>CRUD профил + OWL Person sync</td>
+</tr>
+<tr>
+<td>FR-2</td>
+<td>Nutrition consultation via ACL + SPARQL</td>
+</tr>
+<tr>
+<td>FR-3</td>
+<td>Fitness consultation via ACL + SPARQL</td>
+</tr>
+<tr>
+<td>FR-4</td>
+<td>Habits list от ontology (Coordinator)</td>
+</tr>
+<tr>
+<td>FR-5</td>
+<td>Daily log (вода, стъпки, сън) + history в UI</td>
+</tr>
+<tr>
+<td>FR-6</td>
+<td>Runtime ontology manipulation (custom meals)</td>
+</tr>
+<tr>
+<td>FR-7</td>
+<td>ACL message audit trail</td>
+</tr>
+<tr>
+<td>FR-8</td>
+<td>GENERAL consult — combined lifestyle summary</td>
+</tr>
+<tr>
+<td>FR-9</td>
+<td>Personalized tips (BMI, logs, query filtering)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="онтология-vs-база-данни">3.3. Онтология vs база данни</h3>
+<table>
+<colgroup>
+<col style="width: 38%" />
+<col style="width: 16%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr>
+<th>Данни</th>
+<th>Съхранение</th>
+<th>Причина</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Foods, meals, exercises, goals</td>
+<td>OWL</td>
+<td>Static knowledge, SPARQL inference</td>
+</tr>
+<tr>
+<td>Person + goal links</td>
+<td>OWL (runtime)</td>
+<td>Semantic reasoning</td>
+</tr>
+<tr>
+<td>Username, weight, age</td>
+<td>H2</td>
+<td>PII, frequent updates</td>
+</tr>
+<tr>
+<td>Daily logs</td>
+<td>H2</td>
+<td>Time-series data</td>
+</tr>
+<tr>
+<td>ACL messages</td>
+<td>H2</td>
+<td>Operational audit, demo proof</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="онтologичен-модел">4. Онтologичен модел</h2>
+<p><strong>Namespace:</strong>
+<code>http://www.semanticweb.org/hla/healthy-lifestyle#</code><br />
+<strong>Файл:</strong>
+<code>src/main/resources/ontology/healthy_lifestyle.owl</code> (<strong>v4</strong> —
+пълна OWL DL таксономия)<br />
+<strong>Reasoner:</strong> Apache Jena
+<code>OWL_MEM_MICRO_RULE_INF</code></p>
+<p><strong>Обем (v4):</strong> 45+ OWL класа, 50+ restrictions, 6 inverse
+property двойки — <strong>840 base / ~1419 inferred triples</strong>.</p>
+<p>Секцията покрива изискванията: класова йерархия, OWL restrictions
+(some/allValuesFrom, min/max/exactCardinality), equivalent/disjoint
+класове, inverse и characteristic properties, defined classes с reasoner
+inference.</p>
+<h3 id="класова-йерархия">4.1. Класова йерархия</h3>
+<pre><code>Goal → WeightManagementGoal | PerformanceGoal
+Food → PlantBasedFood | AnimalProteinFood | DairyFood
+     → HighProteinFood | LowCalorieFood | HighFiberFood | LeanProteinFood
+Meal → BreakfastMeal | LunchMeal | DinnerMeal | SnackMeal | VegetarianMeal
+Exercise → Cardio | Strength | Flexibility | HighIntensity | LowIntensity
+Nutrient → Macronutrient | Micronutrient → Vitamin | Mineral
+Habit → Hydration | Sleep | Activity | Mindfulness
+WorkoutPlan → EnduranceWorkoutPlan</code></pre>
+<h3 id="owl-restrictions">4.2.–4.6. Restrictions, Equivalent/Disjoint, Properties</h3>
+<p>Виж <code>docs/DOCUMENTATION.md</code> §4.2–4.6 за пълни таблици:
+someValuesFrom, allValuesFrom, min/max/exactCardinality; equivalent classes
+(LeanProteinFood, HighProteinFood); disjoint exercise/food/goal типове;
+inverse properties (<code>containsFood</code>↔<code>isContainedIn</code>);
+Functional, Symmetric, Transitive, Asymmetric, Reflexive характеристики.</p>
+<h3 id="sparql-examples">4.7. SPARQL examples</h3>
+<p><strong>NutritionAgent</strong> — meals for weight loss with
+low-calorie food constraint:</p>
+<pre class="sparql"><code>PREFIX hla: &lt;http://www.semanticweb.org/hla/healthy-lifestyle#&gt;
+SELECT DISTINCT ?meal ?label WHERE {
+  ?meal a hla:Meal ;
+        rdfs:label ?label ;
+        hla:mealSuitableForGoal hla:WeightLoss .
+  ?meal hla:containsFood ?food .
+  { ?food a hla:LowCalorieFood } UNION { ?food hla:calories ?cal . FILTER(?cal &lt;= 120) }
+}</code></pre>
+<p><strong>Muscle gain</strong> — meals containing inferred
+<code>HighProteinFood</code>:</p>
+<pre class="sparql"><code>?meal hla:containsFood ?food .
+?food a hla:HighProteinFood .</code></pre>
+<p><strong>FitnessAgent</strong> — exercises with duration
+(unchanged).</p>
+<p><strong>WorkoutPlan</strong> — plans linked to goal:</p>
+<pre class="sparql"><code>?plan a hla:WorkoutPlan ;
+      hla:planSuitableForGoal hla:WeightLoss .</code></pre>
+<h3 id="runtime-manipulation-ontologyservice">4.5. Runtime manipulation
+(<code>OntologyService</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Операция</th>
+<th>Метод</th>
+<th>Trigger</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Add Person</td>
+<td><code>addPersonInstance()</code></td>
+<td>Save Profile</td>
+</tr>
+<tr>
+<td>Add Custom Meal</td>
+<td><code>addCustomFoodWithMeal()</code></td>
+<td>Add Custom Meal form</td>
+</tr>
+<tr>
+<td>Link Habit</td>
+<td><code>linkPersonToHabit()</code></td>
+<td>REST API</td>
+</tr>
+</tbody>
+</table>
+<p>При <strong>Add Custom Meal</strong> се създават Food + Meal
+(<code>containsFood</code>, <code>mealSuitableForGoal</code> = goal от
+профила). NutritionAgent включва custom meal в SPARQL препоръките за
+съответния goal.</p>
+<p>След всяка промяна: <code>infModel.rebind()</code>. UI показва
+ontology statement count.</p>
+<hr />
+<h2 id="multi-agent-архитектура">5. Multi-Agent архитектура</h2>
+<h3 id="agent-types">5.1. Agent types</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 21%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr>
+<th>Agent</th>
+<th>Local name</th>
+<th>Роля</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NutritionAgent</strong></td>
+<td>nutrition-agent</td>
+<td>Meal SPARQL — <strong>specialist</strong></td>
+</tr>
+<tr>
+<td><strong>FitnessAgent</strong></td>
+<td>fitness-agent</td>
+<td>Exercise SPARQL — <strong>specialist</strong></td>
+</tr>
+<tr>
+<td>CoordinatorAgent</td>
+<td>coordinator</td>
+<td>Routing; HABITS; GENERAL summary</td>
+</tr>
+<tr>
+<td>GatewayAgent</td>
+<td>gateway-agent</td>
+<td>Spring ↔︎ JADE via <code>AgentRequestQueue</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="fipa-acl">5.2. FIPA ACL</h3>
+<table>
+<thead>
+<tr>
+<th>Performative</th>
+<th>Смисъл</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REQUEST</td>
+<td>Заявка за консултация</td>
+</tr>
+<tr>
+<td>INFORM</td>
+<td>Успешен отговор</td>
+</tr>
+<tr>
+<td>FAILURE</td>
+<td>Грешка при processing</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Request content:</strong></p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;username&quot;</span><span class="fu">:</span> <span class="st">&quot;demo&quot;</span><span class="fu">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;goal&quot;</span><span class="fu">:</span> <span class="st">&quot;WEIGHT_LOSS&quot;</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;activityLevel&quot;</span><span class="fu">:</span> <span class="st">&quot;MODERATE&quot;</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;NUTRITION&quot;</span><span class="fu">,</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;query&quot;</span><span class="fu">:</span> <span class="st">&quot;light lunch&quot;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<h3 id="acl-sequence">5.3. ACL sequence</h3>
+<pre><code>[1] Web UI → AgentGateway (creates ACL REQUEST + conversationId)
+[2] AgentRequestQueue.enqueue()
+[3] GatewayAgent → AchieveREInitiator → CoordinatorAgent [REQUEST]
+[4] CoordinatorAgent:
+      NUTRITION → NutritionAgent [REQUEST]
+      FITNESS   → FitnessAgent [REQUEST]
+      HABITS    → PersonalizedAdviceService + ontology
+      GENERAL   → combined meal + exercise + habit (Coordinator)
+[5] Specialist / Coordinator → SPARQL + profile/log context → ACL INFORM
+[6] Coordinator → ACL INFORM → GatewayAgent
+[7] AgentRequestQueue.complete() → UI response
+[8] Persist in agent_messages + consultation_requests</code></pre>
+<p><strong>Coordinator pattern:</strong> UI не знае agent topology;
+single routing point; extensible за нов specialists.</p>
+<hr />
+<h2 id="software-архитектура">6. Software архитектура</h2>
+<h3 id="layers">6.1. Layers</h3>
+<pre><code>Presentation  → WebController, ApiController, index.html
+Service       → LifestyleService, AgentAuditService, PersonalizedAdviceService
+Agent Layer   → JADE agents, AgentGateway, AgentRequestQueue
+Ontology      → OntologyService (Apache Jena)
+Persistence   → Spring Data JPA + H2</code></pre>
+<h3 id="technology-stack">6.2. Technology stack</h3>
+<p>Java 17 · Spring Boot 3.2 · JADE 4.6 · Apache Jena 4.10 · H2 ·
+Thymeleaf · Bootstrap 5 · Maven</p>
+<h3 id="ключови-класове">6.3. Ключови класове</h3>
+<table>
+<colgroup>
+<col style="width: 42%" />
+<col style="width: 13%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr>
+<th>Клас</th>
+<th>Package</th>
+<th>Отговорност</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HealthyLifestyleApplication</code></td>
+<td>bg.pu.hla</td>
+<td>Spring Boot entry</td>
+</tr>
+<tr>
+<td><code>OntologyService</code></td>
+<td>ontology</td>
+<td>OWL, SPARQL, manipulation</td>
+</tr>
+<tr>
+<td><code>PersonalizedAdviceService</code></td>
+<td>service</td>
+<td>Profile + logs + query → dynamic advice</td>
+</tr>
+<tr>
+<td><code>LifestyleService</code></td>
+<td>service</td>
+<td>Business orchestration</td>
+</tr>
+<tr>
+<td><code>AgentGateway</code></td>
+<td>agent</td>
+<td>Spring → JADE entry</td>
+</tr>
+<tr>
+<td><code>AgentRequestQueue</code></td>
+<td>agent</td>
+<td>Thread-safe Spring-JADE bridge</td>
+</tr>
+<tr>
+<td><code>GatewayAgent</code></td>
+<td>agent</td>
+<td>Queue poll, ACL to Coordinator</td>
+</tr>
+<tr>
+<td><code>CoordinatorAgent</code></td>
+<td>agent</td>
+<td>ACL routing</td>
+</tr>
+<tr>
+<td><code>NutritionAgent</code></td>
+<td>agent</td>
+<td>Meal reasoning</td>
+</tr>
+<tr>
+<td><code>FitnessAgent</code></td>
+<td>agent</td>
+<td>Exercise reasoning</td>
+</tr>
+<tr>
+<td><code>AclMessageFactory</code></td>
+<td>agent</td>
+<td>FIPA message builder</td>
+</tr>
+<tr>
+<td><code>JadeBootstrap</code></td>
+<td>agent</td>
+<td>Start JADE on app ready</td>
+</tr>
+<tr>
+<td><code>WebController</code></td>
+<td>web</td>
+<td>HTML UI</td>
+</tr>
+<tr>
+<td><code>ApiController</code></td>
+<td>web</td>
+<td>REST JSON API</td>
+</tr>
+</tbody>
+</table>
+<h3 id="spring-jade-integration">6.4. Spring ↔︎ JADE integration</h3>
+<p>JADE agents не са Spring beans. <code>SpringContextHolder</code> дава
+достъп до <code>OntologyService</code> и repositories от agent threads.
+<code>AgentAuditService</code> е <code>@Transactional</code> за DB
+writes от agents.</p>
+<hr />
+<h2 id="база-данни">7. База данни</h2>
+<p><strong>Engine:</strong> H2 embedded, file:
+<code>./data/hla-db</code><br />
+<strong>Console:</strong> <a
+href="http://localhost:8080/h2-console">http://localhost:8080/h2-console</a>
+(user: sa)</p>
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 55%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr>
+<th>Таблица</th>
+<th>Ключови полета</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user_profiles</td>
+<td>username, goal, activity_level, age, weight_kg</td>
+<td>User data</td>
+</tr>
+<tr>
+<td>daily_logs</td>
+<td>log_date, water_ml, steps, sleep_hours</td>
+<td>Daily tracking</td>
+</tr>
+<tr>
+<td>consultation_requests</td>
+<td>type, user_query, agent_response</td>
+<td>Consultation history</td>
+</tr>
+<tr>
+<td>agent_messages</td>
+<td>sender_agent, receiver_agent, performative, content</td>
+<td><strong>ACL audit proof</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="потребителски-интерфейс-и-сценарии">8. Потребителски интерфейс и
+сценарии</h2>
+<h3 id="web-ui-sections">8.1. Web UI sections</h3>
+<ol type="1">
+<li><strong>Active user indicator</strong> — header показва текущ
+username и goal</li>
+<li><strong>User Profile</strong> — save → H2 + OWL Person; формата се
+pre-fill-ва от DB</li>
+<li><strong>Daily Log</strong> — water, steps, sleep → H2; <strong>Log
+History</strong> таблица под формата</li>
+<li><strong>Agent Consultation</strong> — NUTRITION / FITNESS / HABITS /
+GENERAL → ACL; показва context (BMI, logs), tips, recommendation
+cards</li>
+<li><strong>Ontology Manipulation</strong> — Add Custom Meal → Food +
+Meal в ontology; влияе на NUTRITION advice</li>
+</ol>
+<p>URL: <a
+href="http://localhost:8080/?user=demo">http://localhost:8080/?user=demo</a>
+· Demo user: <code>demo</code> (създава се автоматично при първи
+старт)</p>
+<h3 id="use-cases">8.2. Use cases</h3>
+<p><strong>UC-1 Profile:</strong> Form → LifestyleService → DB +
+<code>addPersonInstance()</code>.</p>
+<p><strong>UC-2 Nutrition:</strong> Ask Agents → ACL chain → SPARQL
+meals → <code>PersonalizedAdviceService</code> (profile, logs, query) →
+UI.</p>
+<p><strong>UC-3 Fitness:</strong> Same flow → exercises + activity-based
+frequency + log tips.</p>
+<p><strong>UC-4 Habits:</strong> Coordinator → filtered habits +
+personalized tips from daily log.</p>
+<p><strong>UC-5 Add custom meal:</strong> Form →
+<code>addCustomFoodWithMeal()</code> → statement count ↑ → meal се
+появява при NUTRITION consult за user goal.</p>
+<p><strong>UC-6 GENERAL:</strong> Coordinator → top meal + exercise +
+habit + lifestyle summary.</p>
+<p><strong>UC-7 Daily log:</strong> Log Today → H2 → следващ consult
+включва water/steps/sleep в context и tips.</p>
+<h3 id="installation">8.3. Installation</h3>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> healthy-lifestyle-assistant</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> spring-boot:run</span></code></pre></div>
+<h3
+id="примерен-agent-response-nutrition-goal-weight_loss-с-daily-log">8.4.
+Примерен agent response (NUTRITION, goal WEIGHT_LOSS, с daily log)</h3>
+<p><strong>Context (UI info box):</strong><br />
+<code>Personal context for demo: BMI 23.7. Goal WEIGHT_LOSS. Latest log: 1000 ml water, 3000 steps, 6.0 h sleep.</code></p>
+<p><strong>Tips:</strong> - Water intake is low (1000 ml) — aim for at
+least 2000 ml. - Steps are below 6000 — a 20-minute walk would help
+today.</p>
+<p><strong>Recommended meals (cards):</strong> Лека обяд (277 kcal); Боб
+чорба (280 kcal) — ако е добавена като custom meal.</p>
+<pre><code>Nutrition Agent Analysis
+User: demo | Goal: WEIGHT_LOSS
+Query focus: low calorie
+Recommended meals: ...
+Tips: ...</code></pre>
+<h3 id="project-structure">8.5. Project structure</h3>
+<pre><code>healthy-lifestyle-assistant/
+├── pom.xml
+├── lib/jade-4.6.0.jar
+├── docs/DOCUMENTATION.md
+└── src/main/
+    ├── java/bg/pu/hla/
+    │   ├── agent/       # JADE agents, ACL, gateway
+    │   ├── ontology/    # OntologyService
+    │   ├── service/     # LifestyleService
+    │   ├── domain/      # JPA entities
+    │   └── web/         # Controllers
+    └── resources/
+        ├── ontology/healthy_lifestyle.owl
+        └── templates/index.html</code></pre>
+<hr />
+<h2 id="тестване">9. Тестване</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Test</th>
+<th>Expected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T-01</td>
+<td>App start</td>
+<td>4 agents in logs</td>
+</tr>
+<tr>
+<td>T-02</td>
+<td>GET /</td>
+<td>Dashboard loads</td>
+</tr>
+<tr>
+<td>T-03</td>
+<td>Save profile</td>
+<td>H2 record</td>
+</tr>
+<tr>
+<td>T-04</td>
+<td>NUTRITION consult</td>
+<td>Meal response + ACL log</td>
+</tr>
+<tr>
+<td>T-05</td>
+<td>FITNESS consult</td>
+<td>Exercise response</td>
+</tr>
+<tr>
+<td>T-06</td>
+<td>HABITS consult</td>
+<td>Filtered habits + tips</td>
+</tr>
+<tr>
+<td>T-07</td>
+<td>GENERAL consult</td>
+<td>Combined summary</td>
+</tr>
+<tr>
+<td>T-08</td>
+<td>Add custom meal</td>
+<td>Statement count ↑; NUTRITION shows it</td>
+</tr>
+<tr>
+<td>T-09</td>
+<td>Daily log + consult</td>
+<td>Context/tips mention log</td>
+</tr>
+<tr>
+<td>T-10</td>
+<td>H2 agent_messages</td>
+<td>REQUEST + INFORM rows</td>
+</tr>
+</tbody>
+</table>
+<p><strong>API test:</strong></p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-X</span> POST http://localhost:8080/api/users/demo/consult <span class="dt">\</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-H</span> <span class="st">&#39;Content-Type: application/json&#39;</span> <span class="dt">\</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">-d</span> <span class="st">&#39;{&quot;type&quot;:&quot;NUTRITION&quot;,&quot;query&quot;:&quot;low calorie&quot;}&#39;</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-X</span> POST http://localhost:8080/api/users/demo/ontology/foods <span class="dt">\</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">-H</span> <span class="st">&#39;Content-Type: application/json&#39;</span> <span class="dt">\</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">-d</span> <span class="st">&#39;{&quot;name&quot;:&quot;Боб чорба&quot;,&quot;calories&quot;:280,&quot;protein&quot;:12}&#39;</span></span></code></pre></div>
+<hr />
+<h2 id="заключение">10. Заключение</h2>
+<p>HLA покрива всички изисквания на заданието: web GUI, OWL ontology с
+SPARQL reasoning и runtime manipulation, два specialist agent types,
+FIPA ACL с persist audit, H2 database и документация. Архитектурата
+демонстрира интеграция между intelligent systems, ontological
+engineering и software architecture.</p>
+<p><strong>Limitations:</strong> не е medical product; limited food
+catalog; single-node deployment.<br />
+<strong>Future:</strong> LLM agent, mobile app, PostgreSQL, Protégé
+visualization.</p>
+<hr />
+<h2 id="използвана-литература">11. Използвана литература</h2>
+<ol type="1">
+<li>FIPA ACL Message Structure Specification</li>
+<li>Bellifemine, Caire, Greenwood — <em>Developing Multi-Agent Systems
+with JADE</em>, Wiley</li>
+<li>Horridge, Bechhofer — <em>A Practical Guide to Building OWL
+Ontologies</em></li>
+<li>Apache Jena Documentation — ARQ SPARQL</li>
+<li>Wooldridge — <em>An Introduction to MultiAgent Systems</em>,
+Wiley</li>
+</ol>
+<hr />
+<h2 id="приложение-а-rest-api">Приложение А: REST API</h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td>/api/users</td>
+<td>Create/update profile</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/api/users/{username}</td>
+<td>Get profile</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/api/users/{u}/consult</td>
+<td>Agent consultation</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/api/users/{u}/ontology/foods</td>
+<td>Add custom meal</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/api/ontology/habits</td>
+<td>List habits</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/api/ontology/stats</td>
+<td>Statement count</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/api/users/{u}/agent-messages</td>
+<td>ACL audit</td>
+</tr>
+</tbody>
+</table>
+<h2 id="приложение-б-faq-за-защита">Приложение Б: FAQ за защита</h2>
+<p><strong>Q: Защо multi-agent, не monolith?</strong><br />
+A: Specialization + стандартизиран ACL + extensibility.</p>
+<p><strong>Q: Защо не всичко в ontology?</strong><br />
+A: Time-series и ACL logs не са semantic knowledge.</p>
+<p><strong>Q: Какво е OWL restriction?</strong><br />
+A: Логическо правило в онтологията — напр. HighProteinFood ≡ Food с
+proteinGrams ≥ 15; reasoner-ът го прилага автоматично.</p>
+<p><strong>Q: ChatGPT ли е?</strong><br />
+A: Не. Structured MAS consultation — form + ACL + ontology, не свободен
+чат.</p>
+<p><strong>Q: Как custom meal влияе на съветите?</strong><br />
+A: Създава Meal с <code>mealSuitableForGoal</code> = user goal →
+NutritionAgent го намира чрез SPARQL.</p>
+<p><strong>Q: Защо daily log?</strong><br />
+A: Персонализира tips (вода, стъпки, сън) в
+<code>PersonalizedAdviceService</code>; history се вижда в UI.</p>
+<p><strong>Q: Как доказвате ACL?</strong><br />
+A: Таблица <code>agent_messages</code> с performative
+REQUEST/INFORM.</p>
+<p><strong>Q: Какво е SPARQL?</strong><br />
+A: Query language за RDF — declarative reasoning без code change при
+нова храна.</p>
+<h2 id="приложение-в-screenshots">Приложение В: Screenshots</h2>
+<p><em>[Screenshot 1: Dashboard — active user + log history]</em><br />
+<em>[Screenshot 2: Nutrition response — context, tips, cards]</em><br />
+<em>[Screenshot 3: H2 agent_messages table]</em></p>
+<hr />
+<p><em>Край на документа</em></p>
+</body>
+</html>
