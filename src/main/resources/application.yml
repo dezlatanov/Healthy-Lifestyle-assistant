@@ -32,6 +32,15 @@ app:
       nutrition: nutrition-agent
       fitness: fitness-agent
       gateway: gateway-agent
+      llm-coach: llm-coach-agent
+  llm:
+    enabled: true
+    api-key: ${OPENAI_API_KEY:}
+    base-url: https://api.openai.com/v1
+    model: gpt-4o-mini
+    fallback-without-key: true
+    max-tokens: 800
+    temperature: 0.4
 
 logging:
   level:

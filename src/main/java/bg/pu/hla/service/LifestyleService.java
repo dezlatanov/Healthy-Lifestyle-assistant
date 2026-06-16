@@ -26,6 +26,9 @@ public class LifestyleService {
     private final OntologyService ontologyService;
     private final AgentGateway agentGateway;
 
+    private final ChatService chatService;
+    private final EvaluationService evaluationService;
+
     @Transactional
     public UserProfile createOrUpdateUser(UserProfile profile) {
         UserProfile saved = userRepo.findByUsername(profile.getUsername())
@@ -103,6 +106,29 @@ public class LifestyleService {
 
     public long ontologyBaseSize() {
         return ontologyService.baseStatementCount();
+    }
+
+    public Map<String, Object> chat(String username, String message, boolean viaAgents) {
+        if (viaAgents) {
+            return chatService.chatViaAgents(username, message);
+        }
+        return chatService.chatDirect(username, message, ChatMode.HYBRID);
+    }
+
+    public Map<String, Object> chatDirect(String username, String message, ChatMode mode) {
+        return chatService.chatDirect(username, message, mode);
+    }
+
+    public List<Map<String, Object>> getChatHistory(String username) {
+        return chatService.getChatHistory(username);
+    }
+
+    public Map<String, Object> evaluateModes(String username, String query) {
+        return evaluationService.compareModes(username, query);
+    }
+
+    public Map<String, Object> runEvaluationBenchmark(String username) {
+        return evaluationService.runBenchmark(username);
     }
 
     private UserProfile mergeProfile(UserProfile existing, UserProfile incoming) {

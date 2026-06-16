@@ -16,6 +16,7 @@ import bg.pu.hla.domain.*;
 import bg.pu.hla.ontology.OntologyRecommendation;
 import bg.pu.hla.ontology.OntologyService;
 import bg.pu.hla.service.PersonalizedAdviceService;
+import bg.pu.hla.service.UserPersonalizationService;
 import bg.pu.hla.repository.AgentMessageLogRepository;
 import bg.pu.hla.repository.ConsultationRequestRepository;
 import bg.pu.hla.repository.DailyLogRepository;
@@ -35,7 +36,10 @@ public class CoordinatorAgent extends Agent {
             public void action() {
                 ACLMessage msg = receive(MessageTemplate.or(
                         MessageTemplate.MatchPerformative(ACLMessage.REQUEST),
-                        MessageTemplate.MatchPerformative(ACLMessage.INFORM)
+                        MessageTemplate.or(
+                                MessageTemplate.MatchPerformative(ACLMessage.INFORM),
+                                MessageTemplate.MatchPerformative(ACLMessage.FAILURE)
+                        )
                 ));
 
                 if (msg == null) {
@@ -90,6 +94,15 @@ public class CoordinatorAgent extends Agent {
             return;
         }
 
+        if (consultationType == ConsultationType.CHAT) {
+            String target = props.getJade().getAgents().getLlmCoach();
+            ACLMessage delegate = AclMessageFactory.request(target, msg.getContent());
+            delegate.setConversationId(conversationId);
+            delegate.setReplyWith(conversationId);
+            send(delegate);
+            return;
+        }
+
         String targetAgent = consultationType == ConsultationType.FITNESS
                 ? props.getJade().getAgents().getFitness()
                 : props.getJade().getAgents().getNutrition();
@@ -113,7 +126,10 @@ public class CoordinatorAgent extends Agent {
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
         DailyLog latestLog = dailyLogRepo.findFirstByUserOrderByLogDateDesc(user).orElse(null);
 
-        List<OntologyRecommendation> habits = ontologyService.listHabits();
+        List<OntologyRecommendation> habits = ontologyService.listHabitsForGoal(
+                user.getGoal() != null ? user.getGoal() : bg.pu.hla.domain.HealthGoal.MAINTENANCE);
+        UserPersonalizationService personalization = SpringContextHolder.getBean(UserPersonalizationService.class);
+        habits = personalization.personalizeHabits(user, habits);
         Map<String, Object> responsePayload = adviceService.buildHabitsAdvice(user, latestLog, query, habits);
         String response = String.valueOf(responsePayload.get("response"));
 

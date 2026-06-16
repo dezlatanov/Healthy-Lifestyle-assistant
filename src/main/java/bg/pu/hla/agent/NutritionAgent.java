@@ -11,10 +11,12 @@ import java.util.Map;
 import bg.pu.hla.config.AppProperties;
 import bg.pu.hla.domain.*;
 import bg.pu.hla.ontology.OntologyService;
+import bg.pu.hla.ontology.OntologyQueryResult;
 import bg.pu.hla.repository.DailyLogRepository;
 import bg.pu.hla.repository.UserProfileRepository;
 import bg.pu.hla.service.AgentAuditService;
 import bg.pu.hla.service.PersonalizedAdviceService;
+import bg.pu.hla.service.UserPersonalizationService;
 
 @Slf4j
 public class NutritionAgent extends Agent {
@@ -69,7 +71,14 @@ public class NutritionAgent extends Agent {
         DailyLog latestLog = dailyLogRepo.findFirstByUserOrderByLogDateDesc(user).orElse(null);
 
         HealthGoal goal = HealthGoal.valueOf(goalStr);
-        var result = ontologyService.recommendMealsForGoal(goal);
+        var raw = ontologyService.recommendMealsForGoal(goal);
+        UserPersonalizationService personalization = SpringContextHolder.getBean(UserPersonalizationService.class);
+        var personalizedItems = personalization.personalizeMeals(user, raw.getItems());
+        var result = OntologyQueryResult.builder()
+                .items(personalizedItems)
+                .totalCalories(raw.getTotalCalories())
+                .sparqlUsed(raw.getSparqlUsed())
+                .build();
         Map<String, Object> responsePayload = adviceService.buildNutritionAdvice(user, latestLog, query, result);
 
         auditService.recordConsultation(

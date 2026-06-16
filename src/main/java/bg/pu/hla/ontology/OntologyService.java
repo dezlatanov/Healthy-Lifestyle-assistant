@@ -83,6 +83,11 @@ public class OntologyService {
                       ?meal hla:containsFood ?food .
                       { ?food a hla:LowCalorieFood } UNION { ?food hla:calories ?cal . FILTER(?cal <= 120) }
                     """;
+                case ENDURANCE -> """
+                      ?meal hla:containsFood ?food .
+                      { ?food hla:providesNutrient hla:Carbohydrate }
+                      UNION { ?food a hla:PlantBasedFood . ?food hla:fiberGrams ?f . FILTER(?f >= 2.0) }
+                    """;
                 default -> "";
             };
         }
@@ -172,6 +177,43 @@ public class OntologyService {
         return habits;
     }
 
+    public List<OntologyRecommendation> listHabitsForGoal(HealthGoal goal) {
+        String sparql = """
+                PREFIX hla: <%s>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT ?habit ?label ?freq ?habitType WHERE {
+                  ?habit a hla:Habit ;
+                         rdfs:label ?label ;
+                         hla:frequencyPerWeek ?freq ;
+                         hla:supportsGoal <%s> .
+                  OPTIONAL { ?habit hla:targetDailyMl ?water . }
+                  OPTIONAL { ?habit hla:targetSleepHours ?sleep . }
+                  OPTIONAL { ?habit hla:targetSteps ?steps . }
+                  BIND(
+                    IF(BOUND(?water), "Hydration",
+                    IF(BOUND(?sleep), "Sleep", "Activity")) AS ?habitType)
+                }
+                """.formatted(NS, mapGoalToUri(goal));
+
+        List<OntologyRecommendation> habits = new ArrayList<>();
+        try (QueryExecution qexec = QueryExecutionFactory.create(sparql, infModel)) {
+            ResultSet rs = qexec.execSelect();
+            while (rs.hasNext()) {
+                QuerySolution sol = rs.nextSolution();
+                habits.add(OntologyRecommendation.builder()
+                        .id(sol.getResource("habit").getLocalName())
+                        .label(sol.getLiteral("label").getString())
+                        .type(sol.getLiteral("habitType").getString())
+                        .details("frequency/week: " + sol.getLiteral("freq").getInt())
+                        .build());
+            }
+        }
+        if (habits.isEmpty()) {
+            return listHabits();
+        }
+        return habits;
+    }
+
     public List<OntologyRecommendation> listWorkoutPlansForGoal(HealthGoal goal) {
         String sparql = """
                 PREFIX hla: <%s>
@@ -187,17 +229,25 @@ public class OntologyService {
 
     public synchronized String addPersonInstance(String username, HealthGoal goal, ActivityLevel activityLevel) {
         String personUri = NS + "Person_" + sanitize(username);
-        Resource person = model.createResource(personUri, model.createResource(NS + "Person"));
-        person.addProperty(model.createProperty(NS + "username"), username);
+        Resource person = model.getResource(personUri);
+        if (!person.hasProperty(RDF.type)) {
+            person.addProperty(RDF.type, model.createResource(NS + "Person"));
+        }
 
-        Resource goalResource = model.createResource(mapGoalToUri(goal));
-        person.addProperty(model.createProperty(NS + "hasGoal"), goalResource);
+        Property usernameProp = model.createProperty(NS + "username");
+        Property hasGoalProp = model.createProperty(NS + "hasGoal");
+        Property hasActivityProp = model.createProperty(NS + "hasActivityLevel");
 
-        Resource activityResource = model.createResource(mapActivityToUri(activityLevel));
-        person.addProperty(model.createProperty(NS + "hasActivityLevel"), activityResource);
+        model.removeAll(person, usernameProp, null);
+        model.removeAll(person, hasGoalProp, null);
+        model.removeAll(person, hasActivityProp, null);
+
+        person.addProperty(usernameProp, username);
+        person.addProperty(hasGoalProp, model.createResource(mapGoalToUri(goal)));
+        person.addProperty(hasActivityProp, model.createResource(mapActivityToUri(activityLevel)));
 
         infModel.rebind();
-        log.info("Added person instance to ontology: {}", personUri);
+        log.info("Synced person instance in ontology: {} goal={} activity={}", personUri, goal, activityLevel);
         return personUri;
     }
 

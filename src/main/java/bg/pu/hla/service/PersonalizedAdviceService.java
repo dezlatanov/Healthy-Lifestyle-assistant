@@ -14,14 +14,18 @@ import java.util.stream.Collectors;
 public class PersonalizedAdviceService {
 
     private final OntologyService ontologyService;
+    private final UserPersonalizationService personalization;
 
-    public PersonalizedAdviceService(OntologyService ontologyService) {
+    public PersonalizedAdviceService(OntologyService ontologyService,
+                                       UserPersonalizationService personalization) {
         this.ontologyService = ontologyService;
+        this.personalization = personalization;
     }
 
     public Map<String, Object> buildNutritionAdvice(UserProfile user, DailyLog latestLog,
                                                     String query, OntologyQueryResult result) {
-        List<OntologyRecommendation> items = applyQueryFilters(result.getItems(), query, true);
+        List<OntologyRecommendation> items = personalization.personalizeMeals(user,
+                applyQueryFilters(result.getItems(), query, true));
         int totalCalories = sumMealCalories(items);
 
         List<String> tips = new ArrayList<>(buildLogTips(latestLog));
@@ -36,7 +40,8 @@ public class PersonalizedAdviceService {
 
     public Map<String, Object> buildFitnessAdvice(UserProfile user, DailyLog latestLog,
                                                   String query, OntologyQueryResult result) {
-        List<OntologyRecommendation> items = applyQueryFilters(result.getItems(), query, false);
+        List<OntologyRecommendation> items = personalization.personalizeExercises(user,
+                applyQueryFilters(result.getItems(), query, false));
         ActivityLevel activity = user.getActivityLevel() != null ? user.getActivityLevel() : ActivityLevel.MODERATE;
 
         List<String> tips = new ArrayList<>(buildLogTips(latestLog));
@@ -51,7 +56,8 @@ public class PersonalizedAdviceService {
 
     public Map<String, Object> buildHabitsAdvice(UserProfile user, DailyLog latestLog,
                                                  String query, List<OntologyRecommendation> habits) {
-        List<OntologyRecommendation> items = applyQueryFilters(habits, query, false);
+        List<OntologyRecommendation> items = personalization.personalizeHabits(user,
+                applyQueryFilters(habits, query, false));
         List<String> tips = new ArrayList<>(buildLogTips(latestLog));
         if (latestLog != null && latestLog.getSleepHours() != null && latestLog.getSleepHours() < 7) {
             tips.add("Prioritize the sleep habit — recovery supports all other goals.");
@@ -63,9 +69,12 @@ public class PersonalizedAdviceService {
 
     public Map<String, Object> buildGeneralAdvice(UserProfile user, DailyLog latestLog, String query) {
         HealthGoal goal = user.getGoal() != null ? user.getGoal() : HealthGoal.MAINTENANCE;
-        var meals = applyQueryFilters(ontologyService.recommendMealsForGoal(goal).getItems(), query, true);
-        var exercises = applyQueryFilters(ontologyService.recommendExercisesForGoal(goal).getItems(), query, false);
-        var habits = applyQueryFilters(ontologyService.listHabits(), query, false);
+        var meals = personalization.personalizeMeals(user,
+                applyQueryFilters(ontologyService.recommendMealsForGoal(goal).getItems(), query, true));
+        var exercises = personalization.personalizeExercises(user,
+                applyQueryFilters(ontologyService.recommendExercisesForGoal(goal).getItems(), query, false));
+        var habits = personalization.personalizeHabits(user,
+                applyQueryFilters(ontologyService.listHabitsForGoal(goal), query, false));
         var plans = ontologyService.listWorkoutPlansForGoal(goal);
 
         List<OntologyRecommendation> items = new ArrayList<>();
@@ -118,7 +127,7 @@ public class PersonalizedAdviceService {
     }
 
     public String buildContextSummary(UserProfile user, DailyLog log) {
-        StringBuilder sb = new StringBuilder("Personal context for ").append(user.getUsername()).append(": ");
+        StringBuilder sb = new StringBuilder(personalization.buildUserHeader(user)).append(" ");
         if (user.getWeightKg() != null && user.getHeightCm() != null && user.getHeightCm() > 0) {
             double bmi = user.getWeightKg() / Math.pow(user.getHeightCm() / 100.0, 2);
             sb.append(String.format("BMI %.1f. ", bmi));

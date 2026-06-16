@@ -428,7 +428,7 @@ mvn spring-boot:run
 - Water intake is low (1000 ml) — aim for at least 2000 ml.
 - Steps are below 6000 — a 20-minute walk would help today.
 
-**Recommended meals (cards):** Лека обяд (277 kcal); Боб чорба (280 kcal) — ако е добавена като custom meal.
+**Recommended meals (cards):** Лек обяд (277 kcal); Боб чорба (280 kcal) — ако е добавена като custom meal.
 
 ```
 Nutrition Agent Analysis

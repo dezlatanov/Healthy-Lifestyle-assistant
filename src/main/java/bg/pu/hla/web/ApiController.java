@@ -75,6 +75,31 @@ public class ApiController {
         return lifestyleService.listHabits();
     }
 
+    @PostMapping("/users/{username}/chat")
+    public Map<String, Object> chat(@PathVariable String username, @RequestBody ChatRequest request) {
+        boolean viaAgents = request.viaAgents() == null || request.viaAgents();
+        if (request.mode() != null && !viaAgents) {
+            return lifestyleService.chatDirect(username, request.message(), request.mode());
+        }
+        return lifestyleService.chat(username, request.message(), viaAgents);
+    }
+
+    @GetMapping("/users/{username}/chat/history")
+    public List<Map<String, Object>> chatHistory(@PathVariable String username) {
+        return lifestyleService.getChatHistory(username);
+    }
+
+    @GetMapping("/users/{username}/evaluation/compare")
+    public Map<String, Object> evaluate(@PathVariable String username,
+                                        @RequestParam String query) {
+        return lifestyleService.evaluateModes(username, query);
+    }
+
+    @GetMapping("/users/{username}/evaluation/benchmark")
+    public Map<String, Object> benchmark(@PathVariable String username) {
+        return lifestyleService.runEvaluationBenchmark(username);
+    }
+
     @GetMapping("/ontology/stats")
     public Map<String, Long> ontologyStats() {
         return Map.of("statements", lifestyleService.ontologySize());
@@ -82,4 +107,5 @@ public class ApiController {
 
     public record ConsultRequest(ConsultationType type, String query) {}
     public record AddFoodRequest(String name, int calories, double protein) {}
+    public record ChatRequest(String message, ChatMode mode, Boolean viaAgents) {}
 }

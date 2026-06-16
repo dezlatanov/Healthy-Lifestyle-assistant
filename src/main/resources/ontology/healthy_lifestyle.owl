@@ -8,7 +8,7 @@
 
     <owl:Ontology rdf:about="http://www.semanticweb.org/hla/healthy-lifestyle">
         <rdfs:comment>Разширена OWL онтология за здравословен начин на живот с класове, свойства и логически ограничения</rdfs:comment>
-        <rdfs:label xml:lang="bg">Healthy Lifestyle Ontology v4.1</rdfs:label>
+        <rdfs:label xml:lang="bg">Healthy Lifestyle Ontology v6</rdfs:label>
     </owl:Ontology>
 
     <!-- ========== Core Classes ========== -->
@@ -801,7 +801,7 @@
         <compatibleWithRestriction rdf:resource="#LowCalorieDiet"/>
     </DairyFood>
     <PlantBasedFood rdf:about="#LentilSoup">
-        <rdfs:label xml:lang="bg">Лещa ястие</rdfs:label>
+        <rdfs:label xml:lang="bg">Лещена яхния</rdfs:label>
         <calories rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">180</calories>
         <proteinGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">12.0</proteinGrams>
         <fiberGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">8.0</fiberGrams>
@@ -904,7 +904,7 @@
     <Meal rdf:about="#HighProteinBreakfast">
         <rdf:type rdf:resource="#BreakfastMeal"/>
         <rdf:type rdf:resource="#BalancedMeal"/>
-        <rdfs:label xml:lang="bg">Високопroteinова закуска</rdfs:label>
+        <rdfs:label xml:lang="bg">Богата на протеин закуска</rdfs:label>
         <hasMealType rdf:resource="#Breakfast"/>
         <containsFood rdf:resource="#Oatmeal"/>
         <containsFood rdf:resource="#GreekYogurt"/>
@@ -914,7 +914,7 @@
     <Meal rdf:about="#LeanLunch">
         <rdf:type rdf:resource="#LunchMeal"/>
         <rdf:type rdf:resource="#BalancedMeal"/>
-        <rdfs:label xml:lang="bg">Лека обяд</rdfs:label>
+        <rdfs:label xml:lang="bg">Лек обяд</rdfs:label>
         <hasMealType rdf:resource="#Lunch"/>
         <containsFood rdf:resource="#ChickenBreast"/>
         <containsFood rdf:resource="#Broccoli"/>
@@ -954,7 +954,7 @@
     </Meal>
     <Meal rdf:about="#ProteinSnack">
         <rdf:type rdf:resource="#SnackMeal"/>
-        <rdfs:label xml:lang="bg">Protein snack</rdfs:label>
+        <rdfs:label xml:lang="bg">Протеинова закуска</rdfs:label>
         <hasMealType rdf:resource="#Snack"/>
         <containsFood rdf:resource="#CottageCheese"/>
         <containsFood rdf:resource="#Apple"/>
@@ -1117,6 +1117,9 @@
         <rdfs:label xml:lang="bg">10 000 стъпки</rdfs:label>
         <frequencyPerWeek rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">7</frequencyPerWeek>
         <targetSteps rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000</targetSteps>
+        <supportsGoal rdf:resource="#WeightLoss"/>
+        <supportsGoal rdf:resource="#Endurance"/>
+        <supportsGoal rdf:resource="#Maintenance"/>
     </ActivityHabit>
     <ActivityHabit rdf:about="#StretchDaily">
         <habitName>stretch_daily</habitName>
@@ -1138,6 +1141,297 @@
         <frequencyPerWeek rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">7</frequencyPerWeek>
         <supportsGoal rdf:resource="#WeightLoss"/>
     </MindfulnessHabit>
+
+    <!-- ========== v5 expansion: foods, meals, exercises ========== -->
+    <AnimalProteinFood rdf:about="#TurkeyBreast">
+        <rdfs:label xml:lang="bg">Пуйка филе</rdfs:label>
+        <calories rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">135</calories>
+        <proteinGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">30.0</proteinGrams>
+        <providesNutrient rdf:resource="#Protein"/>
+        <compatibleWithRestriction rdf:resource="#HighProteinDiet"/>
+        <compatibleWithRestriction rdf:resource="#LowCalorieDiet"/>
+    </AnimalProteinFood>
+    <AnimalProteinFood rdf:about="#LeanBeef">
+        <rdfs:label xml:lang="bg">Кайма (суха, постна)</rdfs:label>
+        <calories rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">250</calories>
+        <proteinGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">26.0</proteinGrams>
+        <providesNutrient rdf:resource="#Protein"/>
+        <compatibleWithRestriction rdf:resource="#HighProteinDiet"/>
+    </AnimalProteinFood>
+    <PlantBasedFood rdf:about="#Tofu">
+        <rdfs:label xml:lang="bg">Тофу</rdfs:label>
+        <calories rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">76</calories>
+        <proteinGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">8.0</proteinGrams>
+        <providesNutrient rdf:resource="#Protein"/>
+        <compatibleWithRestriction rdf:resource="#VegetarianDiet"/>
+    </PlantBasedFood>
+    <PlantBasedFood rdf:about="#Banana">
+        <rdfs:label xml:lang="bg">Банан</rdfs:label>
+        <calories rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">89</calories>
+        <proteinGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.1</proteinGrams>
+        <fiberGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">2.6</fiberGrams>
+        <providesNutrient rdf:resource="#Carbohydrate"/>
+        <compatibleWithRestriction rdf:resource="#VegetarianDiet"/>
+    </PlantBasedFood>
+    <PlantBasedFood rdf:about="#Cucumber">
+        <rdfs:label xml:lang="bg">Краставица</rdfs:label>
+        <calories rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">16</calories>
+        <proteinGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.7</proteinGrams>
+        <compatibleWithRestriction rdf:resource="#LowCalorieDiet"/>
+        <compatibleWithRestriction rdf:resource="#VegetarianDiet"/>
+    </PlantBasedFood>
+    <PlantBasedFood rdf:about="#Tomato">
+        <rdfs:label xml:lang="bg">Домат</rdfs:label>
+        <calories rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">18</calories>
+        <proteinGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.9</proteinGrams>
+        <providesNutrient rdf:resource="#VitaminC"/>
+        <compatibleWithRestriction rdf:resource="#LowCalorieDiet"/>
+    </PlantBasedFood>
+    <PlantBasedFood rdf:about="#Almonds">
+        <rdfs:label xml:lang="bg">Бадеми</rdfs:label>
+        <calories rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">579</calories>
+        <proteinGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">21.0</proteinGrams>
+        <fiberGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">12.5</fiberGrams>
+        <providesNutrient rdf:resource="#Protein"/>
+        <compatibleWithRestriction rdf:resource="#HighProteinDiet"/>
+    </PlantBasedFood>
+    <PlantBasedFood rdf:about="#WholeGrainPasta">
+        <rdfs:label xml:lang="bg">Пълнозърнеста паста</rdfs:label>
+        <calories rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">174</calories>
+        <proteinGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">7.5</proteinGrams>
+        <fiberGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">3.9</fiberGrams>
+        <providesNutrient rdf:resource="#Carbohydrate"/>
+    </PlantBasedFood>
+
+    <Meal rdf:about="#LightDinner">
+        <rdf:type rdf:resource="#DinnerMeal"/>
+        <rdf:type rdf:resource="#BalancedMeal"/>
+        <rdfs:label xml:lang="bg">Лека вечеря с риба тон</rdfs:label>
+        <hasMealType rdf:resource="#Dinner"/>
+        <containsFood rdf:resource="#Tuna"/>
+        <containsFood rdf:resource="#Cucumber"/>
+        <containsFood rdf:resource="#Tomato"/>
+        <mealSuitableForGoal rdf:resource="#WeightLoss"/>
+    </Meal>
+    <Meal rdf:about="#MusclePowerLunch">
+        <rdf:type rdf:resource="#LunchMeal"/>
+        <rdf:type rdf:resource="#PostWorkoutMeal"/>
+        <rdfs:label xml:lang="bg">Мускулен обяд с пиле и ориз</rdfs:label>
+        <hasMealType rdf:resource="#Lunch"/>
+        <containsFood rdf:resource="#ChickenBreast"/>
+        <containsFood rdf:resource="#BrownRice"/>
+        <containsFood rdf:resource="#Broccoli"/>
+        <mealSuitableForGoal rdf:resource="#MuscleGain"/>
+    </Meal>
+    <Meal rdf:about="#EnduranceBreakfast">
+        <rdf:type rdf:resource="#BreakfastMeal"/>
+        <rdfs:label xml:lang="bg">Закуска за издръжливост</rdfs:label>
+        <hasMealType rdf:resource="#Breakfast"/>
+        <containsFood rdf:resource="#Oatmeal"/>
+        <containsFood rdf:resource="#Banana"/>
+        <containsFood rdf:resource="#Almonds"/>
+        <mealSuitableForGoal rdf:resource="#Endurance"/>
+        <mealSuitableForGoal rdf:resource="#Maintenance"/>
+    </Meal>
+    <Meal rdf:about="#GreekSaladLunch">
+        <rdf:type rdf:resource="#LunchMeal"/>
+        <rdf:type rdf:resource="#VegetarianMeal"/>
+        <rdfs:label xml:lang="bg">Гръцка салата за обяд</rdfs:label>
+        <hasMealType rdf:resource="#Lunch"/>
+        <containsFood rdf:resource="#Cucumber"/>
+        <containsFood rdf:resource="#Tomato"/>
+        <containsFood rdf:resource="#GreekYogurt"/>
+        <containsFood rdf:resource="#Avocado"/>
+        <mealSuitableForGoal rdf:resource="#WeightLoss"/>
+        <mealSuitableForGoal rdf:resource="#Maintenance"/>
+    </Meal>
+    <Meal rdf:about="#ProteinDinner">
+        <rdf:type rdf:resource="#DinnerMeal"/>
+        <rdf:type rdf:resource="#PostWorkoutMeal"/>
+        <rdfs:label xml:lang="bg">Високопротеинова вечеря с пуйка</rdfs:label>
+        <hasMealType rdf:resource="#Dinner"/>
+        <containsFood rdf:resource="#TurkeyBreast"/>
+        <containsFood rdf:resource="#Quinoa"/>
+        <containsFood rdf:resource="#Spinach"/>
+        <mealSuitableForGoal rdf:resource="#MuscleGain"/>
+    </Meal>
+    <Meal rdf:about="#EnduranceLunch">
+        <rdf:type rdf:resource="#LunchMeal"/>
+        <rdfs:label xml:lang="bg">Обяд за кардио дни</rdfs:label>
+        <hasMealType rdf:resource="#Lunch"/>
+        <containsFood rdf:resource="#WholeGrainPasta"/>
+        <containsFood rdf:resource="#SweetPotato"/>
+        <containsFood rdf:resource="#ChickenBreast"/>
+        <mealSuitableForGoal rdf:resource="#Endurance"/>
+    </Meal>
+    <Meal rdf:about="#TofuVegBowl">
+        <rdf:type rdf:resource="#DinnerMeal"/>
+        <rdf:type rdf:resource="#VegetarianMeal"/>
+        <rdfs:label xml:lang="bg">Тофу купа със зеленчуци</rdfs:label>
+        <hasMealType rdf:resource="#Dinner"/>
+        <containsFood rdf:resource="#Tofu"/>
+        <containsFood rdf:resource="#Broccoli"/>
+        <containsFood rdf:resource="#BrownRice"/>
+        <mealSuitableForGoal rdf:resource="#Maintenance"/>
+        <mealSuitableForGoal rdf:resource="#WeightLoss"/>
+    </Meal>
+    <Meal rdf:about="#OfficeSnack">
+        <rdf:type rdf:resource="#SnackMeal"/>
+        <rdfs:label xml:lang="bg">Офис закуска с ябълка и кисело мляко</rdfs:label>
+        <hasMealType rdf:resource="#Snack"/>
+        <containsFood rdf:resource="#Apple"/>
+        <containsFood rdf:resource="#GreekYogurt"/>
+        <mealSuitableForGoal rdf:resource="#WeightLoss"/>
+        <mealSuitableForGoal rdf:resource="#Maintenance"/>
+    </Meal>
+
+    <CardioExercise rdf:about="#Rowing">
+        <rdfs:label xml:lang="bg">Гребен тренажор</rdfs:label>
+        <durationMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">25</durationMinutes>
+        <intensity>moderate</intensity>
+        <exerciseSuitableForGoal rdf:resource="#Endurance"/>
+        <exerciseSuitableForGoal rdf:resource="#WeightLoss"/>
+    </CardioExercise>
+    <StrengthExercise rdf:about="#Squats">
+        <rdfs:label xml:lang="bg">Клекове</rdfs:label>
+        <durationMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">20</durationMinutes>
+        <intensity>moderate</intensity>
+        <exerciseSuitableForGoal rdf:resource="#MuscleGain"/>
+        <exerciseSuitableForGoal rdf:resource="#WeightLoss"/>
+    </StrengthExercise>
+    <HighIntensityExercise rdf:about="#JumpRope">
+        <rdf:type rdf:resource="#CardioExercise"/>
+        <rdfs:label xml:lang="bg">Скачане на въже</rdfs:label>
+        <durationMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">15</durationMinutes>
+        <intensity>high</intensity>
+        <hasIntensityLevel rdf:resource="#HighIntensity"/>
+        <exerciseSuitableForGoal rdf:resource="#WeightLoss"/>
+        <exerciseSuitableForGoal rdf:resource="#Endurance"/>
+    </HighIntensityExercise>
+    <LowIntensityExercise rdf:about="#Walking">
+        <rdf:type rdf:resource="#CardioExercise"/>
+        <rdfs:label xml:lang="bg">Бързо ходене</rdfs:label>
+        <durationMinutes rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">40</durationMinutes>
+        <intensity>low</intensity>
+        <hasIntensityLevel rdf:resource="#LowIntensity"/>
+        <exerciseSuitableForGoal rdf:resource="#WeightLoss"/>
+        <exerciseSuitableForGoal rdf:resource="#Maintenance"/>
+    </LowIntensityExercise>
+
+    <WorkoutPlan rdf:about="#ActiveMusclePlan">
+        <rdfs:label xml:lang="bg">Активен мускулен план</rdfs:label>
+        <recommendedExercise rdf:resource="#WeightTraining"/>
+        <recommendedExercise rdf:resource="#Squats"/>
+        <includesExercise rdf:resource="#WeightTraining"/>
+        <includesExercise rdf:resource="#Squats"/>
+        <planSuitableForGoal rdf:resource="#MuscleGain"/>
+        <recommendedForActivityLevel rdf:resource="#Active"/>
+    </WorkoutPlan>
+
+    <!-- ========== v6 expansion: more goal-specific content ========== -->
+    <PlantBasedFood rdf:about="#Berries">
+        <rdfs:label xml:lang="bg">Горски плодове</rdfs:label>
+        <calories rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">57</calories>
+        <proteinGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.7</proteinGrams>
+        <fiberGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">2.4</fiberGrams>
+        <providesNutrient rdf:resource="#VitaminC"/>
+        <compatibleWithRestriction rdf:resource="#LowCalorieDiet"/>
+    </PlantBasedFood>
+    <AnimalProteinFood rdf:about="#EggWhites">
+        <rdfs:label xml:lang="bg">Яйчен белтък</rdfs:label>
+        <calories rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">52</calories>
+        <proteinGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">11.0</proteinGrams>
+        <providesNutrient rdf:resource="#Protein"/>
+        <compatibleWithRestriction rdf:resource="#HighProteinDiet"/>
+        <compatibleWithRestriction rdf:resource="#LowCalorieDiet"/>
+    </AnimalProteinFood>
+    <PlantBasedFood rdf:about="#Hummus">
+        <rdfs:label xml:lang="bg">Хумус</rdfs:label>
+        <calories rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">166</calories>
+        <proteinGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">7.9</proteinGrams>
+        <fiberGrams rdf:datatype="http://www.w3.org/2001/XMLSchema#double">6.0</fiberGrams>
+        <providesNutrient rdf:resource="#Protein"/>
+        <compatibleWithRestriction rdf:resource="#VegetarianDiet"/>
+    </PlantBasedFood>
+
+    <Meal rdf:about="#WeightLossSoup">
+        <rdf:type rdf:resource="#LunchMeal"/>
+        <rdfs:label xml:lang="bg">Лека зеленчукова супа</rdfs:label>
+        <hasMealType rdf:resource="#Lunch"/>
+        <containsFood rdf:resource="#LentilSoup"/>
+        <containsFood rdf:resource="#Spinach"/>
+        <containsFood rdf:resource="#Cucumber"/>
+        <mealSuitableForGoal rdf:resource="#WeightLoss"/>
+    </Meal>
+    <Meal rdf:about="#MuscleGainShake">
+        <rdf:type rdf:resource="#SnackMeal"/>
+        <rdf:type rdf:resource="#PostWorkoutMeal"/>
+        <rdfs:label xml:lang="bg">Протеинов шейк след тренировка</rdfs:label>
+        <hasMealType rdf:resource="#Snack"/>
+        <containsFood rdf:resource="#GreekYogurt"/>
+        <containsFood rdf:resource="#Banana"/>
+        <containsFood rdf:resource="#Almonds"/>
+        <mealSuitableForGoal rdf:resource="#MuscleGain"/>
+    </Meal>
+    <Meal rdf:about="#EndurancePasta">
+        <rdf:type rdf:resource="#DinnerMeal"/>
+        <rdfs:label xml:lang="bg">Карбо-зареждане с пълнозърнеста паста</rdfs:label>
+        <hasMealType rdf:resource="#Dinner"/>
+        <containsFood rdf:resource="#WholeGrainPasta"/>
+        <containsFood rdf:resource="#ChickenBreast"/>
+        <containsFood rdf:resource="#Tomato"/>
+        <mealSuitableForGoal rdf:resource="#Endurance"/>
+    </Meal>
+    <Meal rdf:about="#MaintenanceBalanced">
+        <rdf:type rdf:resource="#LunchMeal"/>
+        <rdf:type rdf:resource="#BalancedMeal"/>
+        <rdfs:label xml:lang="bg">Балансиран обяд за поддържане</rdfs:label>
+        <hasMealType rdf:resource="#Lunch"/>
+        <containsFood rdf:resource="#TurkeyBreast"/>
+        <containsFood rdf:resource="#Quinoa"/>
+        <containsFood rdf:resource="#Broccoli"/>
+        <mealSuitableForGoal rdf:resource="#Maintenance"/>
+    </Meal>
+    <Meal rdf:about="#LowCalBreakfast">
+        <rdf:type rdf:resource="#BreakfastMeal"/>
+        <rdfs:label xml:lang="bg">Нискокалорична закуска с яйца</rdfs:label>
+        <hasMealType rdf:resource="#Breakfast"/>
+        <containsFood rdf:resource="#EggWhites"/>
+        <containsFood rdf:resource="#Spinach"/>
+        <containsFood rdf:resource="#Tomato"/>
+        <mealSuitableForGoal rdf:resource="#WeightLoss"/>
+    </Meal>
+    <Meal rdf:about="#VegProteinBowl">
+        <rdf:type rdf:resource="#LunchMeal"/>
+        <rdf:type rdf:resource="#VegetarianMeal"/>
+        <rdfs:label xml:lang="bg">Веган протеинова купа</rdfs:label>
+        <hasMealType rdf:resource="#Lunch"/>
+        <containsFood rdf:resource="#Tofu"/>
+        <containsFood rdf:resource="#Hummus"/>
+        <containsFood rdf:resource="#Quinoa"/>
+        <mealSuitableForGoal rdf:resource="#MuscleGain"/>
+        <mealSuitableForGoal rdf:resource="#Maintenance"/>
+    </Meal>
+
+    <ActivityHabit rdf:about="#TrackProtein">
+        <habitName>track_protein</habitName>
+        <rdfs:label xml:lang="bg">Проследяване на протеин</rdfs:label>
+        <frequencyPerWeek rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">7</frequencyPerWeek>
+        <supportsGoal rdf:resource="#MuscleGain"/>
+    </ActivityHabit>
+    <MindfulnessHabit rdf:about="#MealPrep">
+        <habitName>meal_prep</habitName>
+        <rdfs:label xml:lang="bg">Meal prep в неделя</rdfs:label>
+        <frequencyPerWeek rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</frequencyPerWeek>
+        <supportsGoal rdf:resource="#WeightLoss"/>
+        <supportsGoal rdf:resource="#Maintenance"/>
+    </MindfulnessHabit>
+    <ActivityHabit rdf:about="#LongRun">
+        <habitName>long_run</habitName>
+        <rdfs:label xml:lang="bg">Дълго кардио в събота</rdfs:label>
+        <frequencyPerWeek rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</frequencyPerWeek>
+        <supportsGoal rdf:resource="#Endurance"/>
+    </ActivityHabit>
 
     <!-- Demo persons (ontology seed; runtime profiles add more) -->
     <Person rdf:about="#DemoUser">
